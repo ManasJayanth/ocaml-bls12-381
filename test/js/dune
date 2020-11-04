@@ -1,0 +1,28 @@
+(test
+ (name test)
+ (modes byte)
+ (js_of_ocaml)
+ (preprocess (pps js_of_ocaml-ppx ))
+ (libraries
+            bls12-381
+            bls12-381-stubs-js
+            js_of_ocaml
+ )
+)
+
+;; Stanza to build PrintHello.js, result of the jsoo compilation.
+(rule
+ (targets Test.js)
+ (action
+  (run %{bin:js_of_ocaml}
+    ;; Options for debugging purposes
+    %{lib:bls12-381-stubs-js:runtime.js}
+    %{dep:test.bc} --pretty --no-inline --noruntime -o Test.js
+  )
+ )
+)
+
+;; default alias that's gonna be used when using dune build
+(alias (name default) (deps Test.js))
+
+
