@@ -28,7 +28,7 @@ module MakeStubs (M : sig
   val rust_module : unit -> Jsoo_lib.ESModule.t
 
   val get_wasm_memory_buffer : unit -> Jsoo_lib.Memory.Buffer.t
-end) : Bls12_381_gen.S.RAW_BASE = struct
+end) : Bls12_381_gen.Fr.RAW = struct
   open Js.Unsafe
 
   let order =

@@ -79,7 +79,7 @@ module type T = sig
   val mul : t -> Scalar.t -> t
 end
 
-module type RAW_BASE = sig
+module type RAW = sig
   val size_in_bytes : int
 
   val check_bytes : Bytes.t -> bool

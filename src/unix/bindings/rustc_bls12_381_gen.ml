@@ -25,7 +25,6 @@
 let c_headers = "#include \"rustc_bls12_381.h\""
 
 module AllBindings (F : Cstubs.FOREIGN) = struct
-  include Rustc_bls12_381_bindings.Fq12 (F)
   include Rustc_bls12_381_bindings.Fr (F)
   include Rustc_bls12_381_bindings.G1 (F)
   include Rustc_bls12_381_bindings.G2 (F)

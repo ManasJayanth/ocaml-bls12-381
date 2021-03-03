@@ -102,10 +102,6 @@ struct
       (ocaml_bytes @-> ocaml_bytes @-> ocaml_bytes @-> returning void)
 end
 
-module Fq12 = MakeFieldBindings (struct
-  let field_name = "fq12"
-end)
-
 module Fr = MakeFieldBindings (struct
   let field_name = "fr"
 end)
@@ -117,16 +113,9 @@ end)
 struct
   open F
 
-  let uncompressed_check_bytes =
+  let check_bytes =
     foreign
-      (Printf.sprintf
-         "rustc_bls12_381_%s_uncompressed_check_bytes"
-         S.group_name)
-      (ocaml_bytes @-> returning bool)
-
-  let compressed_check_bytes =
-    foreign
-      (Printf.sprintf "rustc_bls12_381_%s_compressed_check_bytes" S.group_name)
+      (Printf.sprintf "rustc_bls12_381_%s_check_bytes" S.group_name)
       (ocaml_bytes @-> returning bool)
 
   let one =
@@ -173,147 +162,63 @@ struct
     foreign
       (Printf.sprintf "rustc_bls12_381_%s_mul" S.group_name)
       (ocaml_bytes @-> ocaml_bytes @-> ocaml_bytes @-> returning void)
-
-  let compressed_one =
-    foreign
-      (Printf.sprintf "rustc_bls12_381_%s_compressed_one" S.group_name)
-      (ocaml_bytes @-> returning void)
-
-  let compressed_zero =
-    foreign
-      (Printf.sprintf "rustc_bls12_381_%s_compressed_zero" S.group_name)
-      (ocaml_bytes @-> returning void)
-
-  let compressed_random =
-    foreign
-      (Printf.sprintf "rustc_bls12_381_%s_compressed_random" S.group_name)
-      (ocaml_bytes @-> returning void)
-
-  let compressed_add =
-    foreign
-      (Printf.sprintf "rustc_bls12_381_%s_compressed_add" S.group_name)
-      (ocaml_bytes @-> ocaml_bytes @-> ocaml_bytes @-> returning void)
-
-  let compressed_negate =
-    foreign
-      (Printf.sprintf "rustc_bls12_381_%s_compressed_negate" S.group_name)
-      (ocaml_bytes @-> ocaml_bytes @-> returning void)
-
-  let compressed_eq =
-    foreign
-      (Printf.sprintf "rustc_bls12_381_%s_compressed_eq" S.group_name)
-      (ocaml_bytes @-> ocaml_bytes @-> returning bool)
-
-  let compressed_is_zero =
-    foreign
-      (Printf.sprintf "rustc_bls12_381_%s_compressed_is_zero" S.group_name)
-      (ocaml_bytes @-> returning bool)
-
-  let compressed_double =
-    foreign
-      (Printf.sprintf "rustc_bls12_381_%s_compressed_double" S.group_name)
-      (ocaml_bytes @-> ocaml_bytes @-> returning void)
-
-  let compressed_mul =
-    foreign
-      (Printf.sprintf "rustc_bls12_381_%s_compressed_mul" S.group_name)
-      (ocaml_bytes @-> ocaml_bytes @-> ocaml_bytes @-> returning void)
-
-  let compressed_of_uncompressed =
-    foreign
-      (Printf.sprintf
-         "rustc_bls12_381_%s_compressed_of_uncompressed"
-         S.group_name)
-      (ocaml_bytes @-> ocaml_bytes @-> returning void)
-
-  let uncompressed_of_compressed =
-    foreign
-      (Printf.sprintf
-         "rustc_bls12_381_%s_uncompressed_of_compressed"
-         S.group_name)
-      (ocaml_bytes @-> ocaml_bytes @-> returning void)
 end
 
 module G1 (F : Cstubs.FOREIGN) = struct
-  open F
-
   include MakeGroupBindings
             (struct
               let group_name = "g1"
             end)
             (F)
-
-  let build_from_components =
-    foreign
-      "rustc_bls12_381_g1_build_from_components"
-      (ocaml_bytes @-> ocaml_bytes @-> ocaml_bytes @-> returning bool)
 end
 
 module G2 (F : Cstubs.FOREIGN) = struct
-  open F
-
   include MakeGroupBindings
             (struct
               let group_name = "g2"
             end)
             (F)
-
-  let build_from_components =
-    foreign
-      "rustc_bls12_381_g2_build_from_components"
-      ( ocaml_bytes @-> ocaml_bytes @-> ocaml_bytes @-> ocaml_bytes
-      @-> ocaml_bytes @-> returning bool )
 end
 
 module Pairing (F : Cstubs.FOREIGN) = struct
   open F
 
-  let miller_loop_simple =
+  let pairing_check_1 =
     foreign
-      "rustc_bls12_381_pairing_miller_loop_simple"
-      (ocaml_bytes @-> ocaml_bytes @-> ocaml_bytes @-> returning void)
+      "rustc_bls12_381_pairing_check_1"
+      (ocaml_bytes @-> ocaml_bytes @-> returning bool)
 
-  let miller_loop_2 =
+  let pairing_check_2 =
     foreign
-      "rustc_bls12_381_pairing_miller_loop_2"
+      "rustc_bls12_381_pairing_check_2"
       ( ocaml_bytes @-> ocaml_bytes @-> ocaml_bytes @-> ocaml_bytes
-      @-> ocaml_bytes @-> returning void )
+      @-> returning bool )
 
-  let miller_loop_3 =
+  let pairing_check_3 =
     foreign
-      "rustc_bls12_381_pairing_miller_loop_3"
+      "rustc_bls12_381_pairing_check_3"
       ( ocaml_bytes @-> ocaml_bytes @-> ocaml_bytes @-> ocaml_bytes
-      @-> ocaml_bytes @-> ocaml_bytes @-> ocaml_bytes @-> returning void )
+      @-> ocaml_bytes @-> ocaml_bytes @-> returning bool )
 
-  let miller_loop_4 =
+  let pairing_check_4 =
     foreign
-      "rustc_bls12_381_pairing_miller_loop_4"
-      ( ocaml_bytes @-> ocaml_bytes @-> ocaml_bytes @-> ocaml_bytes
-      @-> ocaml_bytes @-> ocaml_bytes @-> ocaml_bytes @-> ocaml_bytes
-      @-> ocaml_bytes @-> returning void )
-
-  let miller_loop_5 =
-    foreign
-      "rustc_bls12_381_pairing_miller_loop_5"
+      "rustc_bls12_381_pairing_check_4"
       ( ocaml_bytes @-> ocaml_bytes @-> ocaml_bytes @-> ocaml_bytes
       @-> ocaml_bytes @-> ocaml_bytes @-> ocaml_bytes @-> ocaml_bytes
-      @-> ocaml_bytes @-> ocaml_bytes @-> ocaml_bytes @-> returning void )
+      @-> returning bool )
 
-  let miller_loop_6 =
+  let pairing_check_5 =
     foreign
-      "rustc_bls12_381_pairing_miller_loop_6"
+      "rustc_bls12_381_pairing_check_5"
+      ( ocaml_bytes @-> ocaml_bytes @-> ocaml_bytes @-> ocaml_bytes
+      @-> ocaml_bytes @-> ocaml_bytes @-> ocaml_bytes @-> ocaml_bytes
+      @-> ocaml_bytes @-> ocaml_bytes @-> returning bool )
+
+  let pairing_check_6 =
+    foreign
+      "rustc_bls12_381_pairing_check_6"
       ( ocaml_bytes @-> ocaml_bytes @-> ocaml_bytes @-> ocaml_bytes
       @-> ocaml_bytes @-> ocaml_bytes @-> ocaml_bytes @-> ocaml_bytes
       @-> ocaml_bytes @-> ocaml_bytes @-> ocaml_bytes @-> ocaml_bytes
-      @-> ocaml_bytes @-> returning void )
-
-  let pairing =
-    foreign
-      "rustc_bls12_381_pairing"
-      (ocaml_bytes @-> ocaml_bytes @-> ocaml_bytes @-> returning void)
-
-  let final_exponentiation =
-    foreign
-      "rustc_bls12_381_unsafe_pairing_final_exponentiation"
-      (ocaml_bytes @-> ocaml_bytes @-> returning void)
+      @-> returning bool )
 end

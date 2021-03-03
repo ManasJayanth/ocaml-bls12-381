@@ -22,35 +22,8 @@
 (*                                                                           *)
 (*****************************************************************************)
 
-module type RAW_UNCOMPRESSED = sig
-  include Elliptic_curve_sig.RAW_BASE
-
-  val build_from_components : Bytes.t -> Bytes.t -> Bytes.t option
-end
-
-module type RAW_COMPRESSED = sig
-  include Elliptic_curve_sig.RAW_BASE
-end
-
-module type BASE = sig
-  include Elliptic_curve_sig.T
-end
-
-module type UNCOMPRESSED = sig
-  include BASE
-
-  (** Create a point from the coordinates. If the point is not on the curve,
-    [None] is return. The points must be given modulo the order of Fq. To create
-    the point at infinity, use [zero ()] *)
-  val of_z_opt : x:Z.t -> y:Z.t -> t option
-end
-
-module type COMPRESSED = sig
-  include BASE
-end
-
-module MakeBase (Scalar : Fr.T) (Stubs : Elliptic_curve_sig.RAW_BASE) :
-  BASE with module Scalar = Scalar = struct
+module Make (Scalar : Fr.T) (Stubs : Elliptic_curve_sig.RAW) :
+  Elliptic_curve_sig.T with type Scalar.t = Scalar.t = struct
   exception Not_on_curve of Bytes.t
 
   type t = Bytes.t
@@ -118,24 +91,4 @@ module MakeBase (Scalar : Fr.T) (Stubs : Elliptic_curve_sig.RAW_BASE) :
     let res = Stubs.mul g (Scalar.to_bytes a) in
     assert (Bytes.length res = size_in_bytes) ;
     res
-end
-
-module MakeUncompressed (Scalar : Fr.T) (Stubs : RAW_UNCOMPRESSED) :
-  UNCOMPRESSED with type Scalar.t = Scalar.t = struct
-  include MakeBase (Scalar) (Stubs)
-
-  let of_z_opt ~x ~y =
-    let x_bytes = Bytes.make 48 '\000' in
-    let x = Bytes.of_string (Z.to_bits x) in
-    Bytes.blit x 0 x_bytes 0 (min (Bytes.length x) 48) ;
-    let y_bytes = Bytes.make 48 '\000' in
-    let y = Bytes.of_string (Z.to_bits y) in
-    Bytes.blit y 0 y_bytes 0 (min (Bytes.length y) 48) ;
-    let res = Stubs.build_from_components x_bytes y_bytes in
-    match res with None -> None | Some res -> Some (of_bytes_exn res)
-end
-
-module MakeCompressed (Scalar : Fr.T) (Stubs : RAW_COMPRESSED) :
-  COMPRESSED with type Scalar.t = Scalar.t = struct
-  include MakeBase (Scalar) (Stubs)
 end

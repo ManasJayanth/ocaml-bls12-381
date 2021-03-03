@@ -4,7 +4,7 @@
  (public_name bls12-381-unix)
  (name bls12_381_unix)
  (implements bls12-381)
- (modules fr g1 g2 pairing fq12 rustc_bls12_381_stubs rustc_bls12_381_bindings)
+ (modules fr g1 g2 pairing rustc_bls12_381_stubs rustc_bls12_381_bindings)
  (instrumentation (backend bisect_ppx))
  (private_modules Rustc_bls12_381_stubs Rustc_bls12_381_bindings)
  (libraries zarith ctypes ctypes.foreign bls12-381-gen bls12-381)

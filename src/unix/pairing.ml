@@ -26,55 +26,29 @@ module Pairing_stubs = Rustc_bls12_381_bindings.Pairing (Rustc_bls12_381_stubs)
 
 (* The pairing goes in a finite field, not a group. We strengthen the signature *)
 module Raw_Stubs = struct
-  let miller_loop_simple (g1 : Bytes.t) (g2 : Bytes.t) : Bytes.t =
-    let buffer = Bytes.make Fq12.size_in_bytes '\000' in
-    Pairing_stubs.miller_loop_simple
-      (Ctypes.ocaml_bytes_start buffer)
+  let pairing_check_1 g1 g2 =
+    Pairing_stubs.pairing_check_1
       (Ctypes.ocaml_bytes_start g1)
-      (Ctypes.ocaml_bytes_start g2) ;
-    buffer
+      (Ctypes.ocaml_bytes_start g2)
 
-  let pairing (g1 : Bytes.t) (g2 : Bytes.t) : Bytes.t =
-    let buffer = Bytes.make Fq12.size_in_bytes '\000' in
-    Pairing_stubs.pairing
-      (Ctypes.ocaml_bytes_start buffer)
-      (Ctypes.ocaml_bytes_start g1)
-      (Ctypes.ocaml_bytes_start g2) ;
-    buffer
-
-  let final_exponentiation (e : Bytes.t) : Bytes.t =
-    let buffer = Bytes.make Fq12.size_in_bytes '\000' in
-    Pairing_stubs.final_exponentiation
-      (Ctypes.ocaml_bytes_start buffer)
-      (Ctypes.ocaml_bytes_start e) ;
-    buffer
-
-  let miller_loop_2 g1_1 g1_2 g2_1 g2_2 =
-    let buffer = Bytes.make Fq12.size_in_bytes '\000' in
-    Pairing_stubs.miller_loop_2
-      (Ctypes.ocaml_bytes_start buffer)
+  let pairing_check_2 g1_1 g1_2 g2_1 g2_2 =
+    Pairing_stubs.pairing_check_2
       (Ctypes.ocaml_bytes_start g1_1)
       (Ctypes.ocaml_bytes_start g1_2)
       (Ctypes.ocaml_bytes_start g2_1)
-      (Ctypes.ocaml_bytes_start g2_2) ;
-    buffer
+      (Ctypes.ocaml_bytes_start g2_2)
 
-  let miller_loop_3 g1_1 g1_2 g1_3 g2_1 g2_2 g2_3 =
-    let buffer = Bytes.make Fq12.size_in_bytes '\000' in
-    Pairing_stubs.miller_loop_3
-      (Ctypes.ocaml_bytes_start buffer)
+  let pairing_check_3 g1_1 g1_2 g1_3 g2_1 g2_2 g2_3 =
+    Pairing_stubs.pairing_check_3
       (Ctypes.ocaml_bytes_start g1_1)
       (Ctypes.ocaml_bytes_start g1_2)
       (Ctypes.ocaml_bytes_start g1_3)
       (Ctypes.ocaml_bytes_start g2_1)
       (Ctypes.ocaml_bytes_start g2_2)
-      (Ctypes.ocaml_bytes_start g2_3) ;
-    buffer
+      (Ctypes.ocaml_bytes_start g2_3)
 
-  let miller_loop_4 g1_1 g1_2 g1_3 g1_4 g2_1 g2_2 g2_3 g2_4 =
-    let buffer = Bytes.make Fq12.size_in_bytes '\000' in
-    Pairing_stubs.miller_loop_4
-      (Ctypes.ocaml_bytes_start buffer)
+  let pairing_check_4 g1_1 g1_2 g1_3 g1_4 g2_1 g2_2 g2_3 g2_4 =
+    Pairing_stubs.pairing_check_4
       (Ctypes.ocaml_bytes_start g1_1)
       (Ctypes.ocaml_bytes_start g1_2)
       (Ctypes.ocaml_bytes_start g1_3)
@@ -82,13 +56,10 @@ module Raw_Stubs = struct
       (Ctypes.ocaml_bytes_start g2_1)
       (Ctypes.ocaml_bytes_start g2_2)
       (Ctypes.ocaml_bytes_start g2_3)
-      (Ctypes.ocaml_bytes_start g2_4) ;
-    buffer
+      (Ctypes.ocaml_bytes_start g2_4)
 
-  let miller_loop_5 g1_1 g1_2 g1_3 g1_4 g1_5 g2_1 g2_2 g2_3 g2_4 g2_5 =
-    let buffer = Bytes.make Fq12.size_in_bytes '\000' in
-    Pairing_stubs.miller_loop_5
-      (Ctypes.ocaml_bytes_start buffer)
+  let pairing_check_5 g1_1 g1_2 g1_3 g1_4 g1_5 g2_1 g2_2 g2_3 g2_4 g2_5 =
+    Pairing_stubs.pairing_check_5
       (Ctypes.ocaml_bytes_start g1_1)
       (Ctypes.ocaml_bytes_start g1_2)
       (Ctypes.ocaml_bytes_start g1_3)
@@ -98,14 +69,11 @@ module Raw_Stubs = struct
       (Ctypes.ocaml_bytes_start g2_2)
       (Ctypes.ocaml_bytes_start g2_3)
       (Ctypes.ocaml_bytes_start g2_4)
-      (Ctypes.ocaml_bytes_start g2_5) ;
-    buffer
+      (Ctypes.ocaml_bytes_start g2_5)
 
-  let miller_loop_6 g1_1 g1_2 g1_3 g1_4 g1_5 g1_6 g2_1 g2_2 g2_3 g2_4 g2_5 g2_6
-      =
-    let buffer = Bytes.make Fq12.size_in_bytes '\000' in
-    Pairing_stubs.miller_loop_6
-      (Ctypes.ocaml_bytes_start buffer)
+  let pairing_check_6 g1_1 g1_2 g1_3 g1_4 g1_5 g1_6 g2_1 g2_2 g2_3 g2_4 g2_5
+      g2_6 =
+    Pairing_stubs.pairing_check_6
       (Ctypes.ocaml_bytes_start g1_1)
       (Ctypes.ocaml_bytes_start g1_2)
       (Ctypes.ocaml_bytes_start g1_3)
@@ -117,9 +85,7 @@ module Raw_Stubs = struct
       (Ctypes.ocaml_bytes_start g2_3)
       (Ctypes.ocaml_bytes_start g2_4)
       (Ctypes.ocaml_bytes_start g2_5)
-      (Ctypes.ocaml_bytes_start g2_6) ;
-    buffer
+      (Ctypes.ocaml_bytes_start g2_6)
 end
 
-include Bls12_381_gen.Pairing.Make (G1.Uncompressed) (G2.Uncompressed) (Fq12)
-          (Raw_Stubs)
+include Bls12_381_gen.Pairing.Make (G1) (G2) (Raw_Stubs)
