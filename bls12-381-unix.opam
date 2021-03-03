@@ -29,3 +29,6 @@ depends: [
 ]
 build: [[ "dune" "build" "-j" jobs "-p" name "@install" ]]
 run-test: [[ "dune" "runtest" "-p" name "-j" jobs ]]
+pin-depends: [
+  ["tezos-rust-libs.1.1" "git+https://gitlab.com/tezos/tezos-rust-libs#45b0512a421774c3cd9086cfdf201bb5f06d1e1e"]
+]
