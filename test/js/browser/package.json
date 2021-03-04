@@ -3,7 +3,7 @@
         "child_process": false
     },
     "dependencies": {
-        "@dannywillems/rustc-bls12-381": "0.8.1"
+        "@dannywillems/rustc-bls12-381": "0.8.1-0a1fe6072b3d274de5a22fc3267fa29ccca7c18f"
     },
     "scripts": {
         "serve": "webpack-dev-server"

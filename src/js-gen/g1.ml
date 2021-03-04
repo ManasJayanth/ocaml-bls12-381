@@ -41,7 +41,7 @@ end) : Bls12_381_gen.Elliptic_curve_sig.RAW = struct
       size_in_bytes ;
     Js.to_bool
     @@ fun_call
-         (get (M.rust_module ()) "rustc_bls12_381_g1_uncompressed_check_bytes")
+         (get (M.rust_module ()) "rustc_bls12_381_g1_check_bytes")
          [| inject 0 |]
 
   let is_zero bs =

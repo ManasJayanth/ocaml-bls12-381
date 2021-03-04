@@ -1,6 +1,6 @@
 {
     "dependencies": {
-        "@dannywillems/rustc-bls12-381-node": "0.8.1"
+        "@dannywillems/rustc-bls12-381-node": "0.8.1-0a1fe6072b3d274de5a22fc3267fa29ccca7c18f"
     },
     "scripts": {
         "test": "npm install && node run.js"
