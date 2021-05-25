@@ -40,11 +40,11 @@ module type T = sig
   (** Check if a point, represented as a byte array, is on the curve **)
   val check_bytes : Bytes.t -> bool
 
-  (** Attempt to construct a point from a byte array *)
+  (** Allocates a new point from byte array *)
   val of_bytes_opt : Bytes.t -> t option
 
-  (** Attempt to construct a point from a byte array.
-      Raise [Not_on_curve] if the point is not on the curve
+  (** Allocates a new point from byte array.
+      Raise [Not_on_curve] if the point is not on the curve.
   *)
   val of_bytes_exn : Bytes.t -> t
 
