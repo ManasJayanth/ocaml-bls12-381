@@ -545,9 +545,21 @@ module RootsOfUnity = struct
         assert (not @@ Bls12_381.Fr.(is_one (pow omega (Z.of_int (n lsr 1))))))
       vectors
 
+  let test_get_nth_root_of_unity () =
+    let i = Random.int 30 + 2 in
+    let omega = Bls12_381.Fr.get_nth_root_of_unity i in
+    let exp = 1 lsl i in
+    assert (Bls12_381.Fr.(is_one (pow omega (Z.of_int exp)))) ;
+    assert (not @@ Bls12_381.Fr.(is_one (pow omega (Z.of_int (exp lsr 1)))))
+
   let get_tests () =
     let open Alcotest in
-    ("Roots of unity in Fr", [test_case "vectors" `Quick test_roots_of_unity])
+    ( "Roots of unity in Fr",
+      [ test_case "vectors" `Quick test_roots_of_unity;
+        test_case
+          "Root of unity generator"
+          `Quick
+          (repeat 100 test_get_nth_root_of_unity) ] )
 end
 
 let () =
