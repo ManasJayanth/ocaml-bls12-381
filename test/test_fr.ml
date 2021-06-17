@@ -523,12 +523,40 @@ module FFT = struct
     ("FFT with Fr", [test_case "vectors" `Quick test_fft_vectors])
 end
 
+(* Testing and keeping tracks of roots of unity *)
+module RootsOfUnity = struct
+  let test_roots_of_unity () =
+    let vectors =
+      [ ( "45578933624873246016802258050230213493140367389966312656957679049059636081617",
+          1 lsl 16 );
+        ( "15076889834420168339092859836519192632846122361203618639585008852351569017005",
+          1 lsl 16 );
+        ( "21584124886548760190346392867028830688912556631271990304491841940743921295609",
+          1 lsl 32 );
+        ( "27611812781829920551290133267575249478648871281233506899293410857719571783635",
+          1 lsl 8 );
+        ( "16624801632831727463500847948913128838752380757508923660793891075002624508302",
+          1 lsl 4 ) ]
+    in
+    List.iter
+      (fun (omega, n) ->
+        let omega = Bls12_381.Fr.of_string omega in
+        assert (Bls12_381.Fr.(is_one (pow omega (Z.of_int n)))) ;
+        assert (not @@ Bls12_381.Fr.(is_one (pow omega (Z.of_int (n lsr 1))))))
+      vectors
+
+  let get_tests () =
+    let open Alcotest in
+    ("Roots of unity in Fr", [test_case "vectors" `Quick test_roots_of_unity])
+end
+
 let () =
   let open Alcotest in
   run
     "Fr"
     ( TestVector.get_tests () :: ResidueTests.get_tests ()
     :: ZRepresentation.get_tests ()
+    :: RootsOfUnity.get_tests ()
     :: BytesRepresentation.get_tests ()
     :: StringRepresentation.get_tests ()
     :: FFT.get_tests () :: Tests.get_tests () )
