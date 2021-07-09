@@ -114,6 +114,8 @@ module type T = sig
       complexity is O(n log(n)) where [n] is the domain size.
   *)
   val ifft : domain:Scalar.t array -> points:t array -> t array
+
+  val hash_to_curve : Bytes.t -> Bytes.t -> t
 end
 
 module type RAW_BASE = sig
@@ -158,6 +160,8 @@ module type RAW_BASE = sig
   val negate : Bytes.t -> Bytes.t
 
   val double : Bytes.t -> Bytes.t
+
+  val hash_to_curve : Bytes.t -> Bytes.t -> int -> int -> Bytes.t
 end
 
 module Make (Scalar : Fr.T) (Stubs : RAW_BASE) : T with module Scalar = Scalar =
@@ -285,4 +289,12 @@ struct
       let scalar_of_z = Scalar.of_z
     end in
     Fft.ifft (module M) ~domain ~points
+
+  let hash_to_curve message dst =
+    let message_length = Bytes.length message in
+    let dst_length = Bytes.length dst in
+    assert (Bytes.length message <= 512) ;
+    assert (Bytes.length dst <= 48) ;
+    let res = Stubs.hash_to_curve message dst message_length dst_length in
+    res
 end

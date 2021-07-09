@@ -234,6 +234,38 @@ end) : Bls12_381_gen.G1.RAW = struct
     in
     Jsoo_lib.Memory.Buffer.to_bytes res
 
+  let hash_to_curve message dst message_length dst_length =
+    assert (Bytes.length message = message_length) ;
+    assert (Bytes.length dst = dst_length) ;
+    assert (message_length <= 512) ;
+    assert (dst_length <= 48) ;
+
+    Jsoo_lib.Memory.copy_in_buffer
+      (M.get_wasm_memory_buffer ())
+      message
+      0
+      size_in_bytes
+      512 ;
+    Jsoo_lib.Memory.copy_in_buffer
+      (M.get_wasm_memory_buffer ())
+      dst
+      0
+      (size_in_bytes + 512)
+      48 ;
+    ignore
+    @@ fun_call
+         (get (M.rust_module ()) "rustc_bls12_381_hash_to_curve_g1")
+         [| inject 0;
+            inject 512;
+            inject (512 + size_in_bytes);
+            Jsoo_lib.Number.(to_any_js (of_int message_length));
+            Jsoo_lib.Number.(to_any_js (of_int dst_length))
+         |] ;
+    let res =
+      Jsoo_lib.Memory.Buffer.slice (M.get_wasm_memory_buffer ()) 0 size_in_bytes
+    in
+    Jsoo_lib.Memory.Buffer.to_bytes res
+
   let build_from_components x y =
     Jsoo_lib.Memory.copy_in_buffer
       (M.get_wasm_memory_buffer ())

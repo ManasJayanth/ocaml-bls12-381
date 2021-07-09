@@ -198,6 +198,12 @@ module G1 (F : Cstubs.FOREIGN) = struct
             end)
             (F)
 
+  let hash_to_curve =
+    foreign
+      "rustc_bls12_381_hash_to_curve_g1"
+      ( ocaml_bytes @-> ocaml_bytes @-> ocaml_bytes @-> size_t @-> size_t
+      @-> returning void )
+
   let build_from_components =
     foreign
       "rustc_bls12_381_g1_build_from_components"
@@ -212,6 +218,12 @@ module G2 (F : Cstubs.FOREIGN) = struct
               let group_name = "g2"
             end)
             (F)
+
+  let hash_to_curve =
+    foreign
+      "rustc_bls12_381_hash_to_curve_g2"
+      ( ocaml_bytes @-> ocaml_bytes @-> ocaml_bytes @-> size_t @-> size_t
+      @-> returning void )
 
   let build_from_components =
     foreign

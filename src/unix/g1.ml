@@ -108,6 +108,16 @@ module Stubs = struct
         (Ctypes.ocaml_bytes_start y)
     in
     if res = false then None else Some buffer
+
+  let hash_to_curve message dst message_length dst_length =
+    let buffer = empty () in
+    G1_stubs.hash_to_curve
+      (Ctypes.ocaml_bytes_start buffer)
+      (Ctypes.ocaml_bytes_start message)
+      (Ctypes.ocaml_bytes_start dst)
+      (Unsigned.Size_t.of_int message_length)
+      (Unsigned.Size_t.of_int dst_length) ;
+    buffer
 end
 
 include Bls12_381_gen.G1.Make (Fr) (Stubs)
