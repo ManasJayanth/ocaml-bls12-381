@@ -16,3 +16,5 @@
  )
  (c_library_flags (-L%{env:OPAM_SWITCH_PREFIX=}/lib/tezos-rust-libs -lrustc_bls12_381 -lpthread))
 )
+
+(executable (name test) (modules test) (libraries bls12-381-unix hex))
