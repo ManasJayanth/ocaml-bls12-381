@@ -83,13 +83,13 @@ lint-js:
     - opam pin add bls12-381-unix-blst.dev . --no-action
     - opam pin add bls12-381-js-gen.dev . --no-action
     - opam pin add bls12-381-js.dev . --no-action
-    # Install the packages
-    - opam install bls12-381-gen -y --with-test
-    - opam install bls12-381 -y --with-test
-    - opam install bls12-381-unix -y --with-test
-    - opam install bls12-381-unix-blst -y --with-test
-    - opam install bls12-381-js-gen -y --with-test
-    - opam install bls12-381-js -y --with-test
+    # Install the dependencies
+    - opam install bls12-381-gen -y --with-test --deps-only
+    - opam install bls12-381 -y --with-test --deps-only
+    - opam install bls12-381-unix -y --with-test --deps-only
+    - opam install bls12-381-unix-blst -y --with-test --deps-only
+    - opam install bls12-381-js-gen -y --with-test --deps-only
+    - opam install bls12-381-js -y --with-test --deps-only
     - dune build @install
     - dune runtest
     # Additional test for the browser case of `js`. Tests are not automatic.
@@ -116,18 +116,15 @@ build-ocaml-4.11-rust-1.44.0:
 
 # Not using the same images than the others as it seems 4.12 images are too old
 build-ocaml-4.12-rust-1.44.0:
-  image: ocaml/opam:debian-testing-opam
+  image: ocaml/opam:debian-ocaml-4.12
   stage: build
   before_script:
     - sudo apt-get update
     - sudo apt-get install wget -y
     - opam repository set-url default https://opam.ocaml.org
     - opam update
-    - opam switch create ./ ocaml-base-compiler.4.12.0 --no-install
-    - eval $(opam env)
     - opam install opam-depext odoc -y
     - opam depext conf-gmp conf-pkg-config conf-libffi conf-rust
-    - opam install . --deps-only --with-test -y
     # Install NVM for the JS test
     - curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.35.3/install.sh | bash
     - export NVM_DIR="$HOME/.nvm"
@@ -148,7 +145,25 @@ build-ocaml-4.12-rust-1.44.0:
     - cp bindings/*.h $OPAM_SWITCH_PREFIX/lib/blst
     - cd ../
   script:
-    - dune build @runtest
+    # Pin for later installation
+    - opam pin add bls12-381-gen.dev . --no-action
+    - opam pin add bls12-381.dev . --no-action
+    - opam pin add bls12-381-unix.dev . --no-action
+    - opam pin add bls12-381-unix-blst.dev . --no-action
+    - opam pin add bls12-381-js-gen.dev . --no-action
+    - opam pin add bls12-381-js.dev . --no-action
+    # Install the dependencies
+    - opam install bls12-381-gen -y --with-test --deps-only
+    - opam install bls12-381 -y --with-test --deps-only
+    - opam install bls12-381-unix -y --with-test --deps-only
+    - opam install bls12-381-unix-blst -y --with-test --deps-only
+    - opam install bls12-381-js-gen -y --with-test --deps-only
+    - opam install bls12-381-js -y --with-test --deps-only
+    - dune build @install
+    - dune runtest
+    # Additional test for the browser case of `js`. Tests are not automatic.
+    # Only checking the stanza does work
+    - dune build @test/js/browser/serve
   rules:
     - when: always
 
@@ -349,7 +364,14 @@ doc:
     - cp libblst.a $OPAM_SWITCH_PREFIX/lib/blst
     - cp bindings/*.h $OPAM_SWITCH_PREFIX/lib/blst
     - cd ../
-    - opam install . -y --with-test
+    # Install packages after pin
+    - opam pin add bls12-381-gen.dev . --no-action
+    - opam pin add bls12-381.dev . --no-action
+    - opam pin add bls12-381-js-gen.dev . --no-action
+    - opam pin add bls12-381-js.dev . --no-action
+    - opam pin add bls12-381-unix.dev . --no-action
+    - opam pin add bls12-381-unix-blst.dev . --no-action
+    - opam install . -y --deps-only
   script:
     - dune build @doc
     - cp -r _build/default/_doc/_html _odoc/
