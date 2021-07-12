@@ -47,14 +47,11 @@ module Fr = struct
     if Bytes.length bs > size_in_bytes then None
     else
       let bs = pad_if_require bs in
-      let buffer_scalar = Blst_bindings.Types.allocate_scalar () in
-      let () =
-        Stubs.scalar_of_bytes_le buffer_scalar (Ctypes.ocaml_bytes_start bs)
-      in
-      if Stubs.check_scalar buffer_scalar then (
-        let buffer_fr = Blst_bindings.Types.allocate_fr () in
-        Stubs.fr_of_scalar buffer_fr buffer_scalar ;
-        Some buffer_fr )
+      (* I'd like to try something different using blst_fr_from_uint64. Let's
+      use Bytes.iteri, use an accumulator with references to the 4 uint64, and
+      on the fly, we check if the values are ok. We keep also the current
+      exponent of 2 when computing a uint64. Let's see if it is better *)
+      let acc_uint64 = (Unsigned.UInt64.zero, Unsigned.UInt64.zero, Unsigned.UInt64.zero, Unsigned.UInt) in
       else None
 
   let of_bytes_exn bs =
