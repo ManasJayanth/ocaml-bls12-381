@@ -39,6 +39,16 @@ module MakeBenchBlst = struct
     let n = F.(to_z (random ())) in
     Bench.Test.create ~name:"Pow Fr" (fun () -> ignore (F.pow e1 n))
 
+  let test_of_bytes_exn =
+    let e = F.random () in
+    let e_bytes = F.to_bytes e in
+    Bench.Test.create ~name:"of_bytes_exn Fr" (fun () ->
+        ignore (F.of_bytes_exn e_bytes))
+
+  let test_to_bytes =
+    let e = F.random () in
+    Bench.Test.create ~name:"to_bytes Fr" (fun () -> ignore (F.to_bytes e))
+
   let get_benches () =
     [ test_addition;
       test_multiplication;
@@ -47,7 +57,9 @@ module MakeBenchBlst = struct
       test_square;
       test_inverse;
       test_pow;
-      test_double ]
+      test_double;
+      test_of_bytes_exn;
+      test_to_bytes ]
 end
 
 let () =
