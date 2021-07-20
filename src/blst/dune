@@ -7,12 +7,13 @@
 
 (rule
  (deps (source_tree libblst))
- (targets libblst.a)
+ (targets libblst.a dllblst.so)
  (action
  (no-infer
   (progn
-   (chdir libblst (run ./build.sh))
+   (chdir libblst (run ./build.sh -shared))
    (copy libblst/libblst.a libblst.a)
+   (copy libblst/libblst.so dllblst.so)
    ;; (copy libblst/libblst.so libblst.so)
    ))))
 
@@ -53,5 +54,4 @@
   (language c)
   (names blst_ctypes_c_stubs)
  )
- (no_dynlink)
 )
