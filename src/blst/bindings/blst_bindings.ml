@@ -654,6 +654,12 @@ module StubsG1 (S : Cstubs.FOREIGN) = struct
       "blst_hash_to_g1"
       ( ptr blst_g1_t @-> ocaml_bytes @-> size_t @-> ocaml_bytes @-> size_t
       @-> ocaml_bytes @-> size_t @-> returning void )
+
+  let encode_to_curve =
+    foreign
+      "blst_encode_to_g1"
+      ( ptr blst_g1_t @-> ocaml_bytes @-> size_t @-> ocaml_bytes @-> size_t
+      @-> ocaml_bytes @-> size_t @-> returning void )
 end
 
 module StubsG2 (S : Cstubs.FOREIGN) = struct
@@ -718,6 +724,12 @@ module StubsG2 (S : Cstubs.FOREIGN) = struct
   let hash_to_curve =
     foreign
       "blst_hash_to_g2"
+      ( ptr blst_g2_t @-> ocaml_bytes @-> size_t @-> ocaml_bytes @-> size_t
+      @-> ocaml_bytes @-> size_t @-> returning void )
+
+  let encode_to_curve =
+    foreign
+      "blst_encode_to_g2"
       ( ptr blst_g2_t @-> ocaml_bytes @-> size_t @-> ocaml_bytes @-> size_t
       @-> ocaml_bytes @-> size_t @-> returning void )
 end
