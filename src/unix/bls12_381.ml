@@ -27,3 +27,46 @@ module Fq12 = Fq12
 module G1 = G1
 module G2 = G2
 module Pairing = Pairing
+
+module Signature = struct
+  type sk = Bytes.t
+
+  type pk = Bytes.t
+
+  let sk_of_bytes_exn _sk = failwith "Not implemented"
+
+  let sk_to_bytes _b = failwith "Not implemented"
+
+  let generate_sk ?key_info ikm =
+    ignore key_info ;
+    ignore ikm ;
+    failwith "Not implemented"
+
+  let derive_pk _sk = failwith "Not implemented"
+
+  let core_sign _sk _message = failwith "Not implemented"
+
+  let core_verify _pk _msg _signature = failwith "Not implemented"
+
+  module Basic = struct
+    let sign _sk _message = failwith "Not implemented"
+
+    let verify _pk _msg _signature = failwith "Not implemented"
+  end
+
+  module Aug = struct
+    let sign _sk _message = failwith "Not implemented"
+
+    let verify _pk _msg _signature = failwith "Not implemented"
+  end
+
+  module Pop = struct
+    let sign _sk _message = failwith "Not implemented"
+
+    let verify _pk _msg _signature = failwith "Not implemented"
+
+    let pop_prove _sk = failwith "Not implemented"
+
+    let pop_verify _pk _signature = failwith "Not implemented"
+  end
+end
