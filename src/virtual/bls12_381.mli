@@ -49,3 +49,21 @@ module Pairing : sig
         [FailToComputeFinalExponentiation] if the point is null *)
   val final_exponentiation_exn : Fq12.t -> Fq12.t
 end
+
+module Signature : sig
+  type sk
+
+  type pk
+
+  val sk_of_bytes_exn : Bytes.t -> sk
+
+  val sk_key_to_bytes : sk -> Bytes.t
+
+  val generate_sk : ?key_info:Bytes.t -> Bytes.t -> sk
+
+  val derive_pk : sk -> pk
+
+  val sign : sk -> Bytes.t -> Bytes.t
+
+  val verify : pk -> Bytes.t -> Bytes.t -> bool
+end
