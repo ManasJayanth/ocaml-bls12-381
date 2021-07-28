@@ -77,6 +77,8 @@ module Signature : sig
     val sign : sk -> Bytes.t -> Bytes.t
 
     val verify : pk -> Bytes.t -> Bytes.t -> bool
+
+    val aggregate_signature : (sk * Bytes.t) list -> Bytes.t
   end
 
   (**

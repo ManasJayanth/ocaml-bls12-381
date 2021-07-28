@@ -137,6 +137,10 @@ module type TYPES = sig
 
   val g2_affine_set_y :
     blst_g2_affine_t Ctypes.ptr -> blst_fq2_t Ctypes.ptr -> unit
+
+  type blst_pairing_t
+
+  val blst_pairing_t : blst_pairing_t Ctypes.typ
 end
 
 module Types : TYPES = struct
@@ -465,6 +469,18 @@ module Types : TYPES = struct
   let g2_affine_set_y p y =
     let (_, _, field_y, _) = blst_g2_affine_t_compo in
     Ctypes.(setf !@p field_y !@y)
+
+  type blst_pairing_t
+
+  let blst_pairing_t : blst_aggregation_t Ctypes.typ =
+    let anon_structure = Ctypes.structure "" in
+    let blst_pairing_t = Ctypes.(typedef anon_structure "blst_pairing_t") in
+    Ctypes.seal blst_pairing_t ;
+    blst_pairing_t
+
+  let allocate_aggregation_ctxt () =
+    let p = Ctypes.make blst_pairing_t in
+    Ctypes.addr p
 end
 
 module StubsFr (S : Cstubs.FOREIGN) = struct
@@ -801,10 +817,21 @@ module StubsSignature (S : Cstubs.FOREIGN) = struct
       "blst_sign_pk_in_g1"
       (ptr blst_g2_t @-> ptr blst_g2_t @-> ptr blst_scalar_t @-> returning void)
 
+  let pairing_init =
+    foreign
+      "blst_pairing_init"
+      (ptr blst_pairing_t @-> bool @-> ocaml_bytes @-> size_t @-> returning void)
+
   let core_verify =
     foreign
       "blst_core_verify_pk_in_g1"
       ( ptr blst_g1_affine_t @-> ptr blst_g2_affine_t @-> bool @-> ocaml_bytes
       @-> size_t @-> ocaml_bytes @-> size_t @-> ocaml_bytes @-> size_t
       @-> returning int )
+
+  let aggregate_signature =
+    foreign
+      "blst_pairing_aggregate_pk_in_g1"
+      ( ptr blst_pairing_t @-> ptr blst_g1_affine_t @-> ptr blst_g2_affine_t
+      @-> ocaml_bytes @-> size_t @-> ocaml_bytes @-> size_t @-> returning int )
 end
