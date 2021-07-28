@@ -27,3 +27,14 @@ module Fq12 = Fq12
 module G1 = G1
 module G2 = G2
 module Pairing = Pairing
+
+module Signature = struct
+  let generate_secret_key ?key_info ~ikm =
+    ignore key_info ;
+    ignore ikm ;
+    failwith "Not implemented"
+
+  let derive_public_key _sk = failwith "Not implemented"
+
+  let sign _sk _message = failwith "Not implemented"
+end
