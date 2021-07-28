@@ -49,3 +49,63 @@ module Pairing : sig
         [FailToComputeFinalExponentiation] if the point is null *)
   val final_exponentiation_exn : Fq12.t -> Fq12.t
 end
+
+(** Follow https://tools.ietf.org/pdf/draft-irtf-cfrg-bls-signature-04.pdf *)
+module Signature : sig
+  type sk
+
+  type pk
+
+  val sk_of_bytes_exn : Bytes.t -> sk
+
+  val sk_key_to_bytes : sk -> Bytes.t
+
+  val generate_sk : ?key_info:Bytes.t -> Bytes.t -> sk
+
+  val derive_pk : sk -> pk
+
+  val core_sign : sk -> Bytes.t -> Bytes.t -> Bytes.t
+
+  val core_verify : pk -> Bytes.t -> Bytes.t -> Bytes.t -> bool
+
+  (**
+    https://datatracker.ietf.org/doc/html/draft-irtf-cfrg-bls-signature-04#section-3.1
+
+    In a basic scheme, rogue key attacks are handled by requiring all
+    messages signed by an aggregate signature to be distinct.  This
+    requirement is enforced in the definition of AggregateVerify.
+
+    The Sign and Verify functions are identical to CoreSign and
+    CoreVerify (Section 2), respectively.
+  *)
+  module Basic : sig
+    val sign : sk -> Bytes.t -> Bytes.t
+
+    val verify : pk -> Bytes.t -> Bytes.t -> bool
+
+    (* val aggregate_signature : (sk * Bytes.t) list -> Bytes.t *)
+  end
+
+  (**
+    https://datatracker.ietf.org/doc/html/draft-irtf-cfrg-bls-signature-04#section-3.2
+
+    In a message augmentation scheme, signatures are generated over the
+    concatenation of the public key and the message, ensuring that
+    messages signed by different public keys are distinct.
+  *)
+  module Aug : sig
+    val sign : sk -> Bytes.t -> Bytes.t
+
+    val verify : pk -> Bytes.t -> Bytes.t -> bool
+  end
+
+  module Pop : sig
+    val sign : sk -> Bytes.t -> Bytes.t
+
+    val verify : pk -> Bytes.t -> Bytes.t -> bool
+
+    val pop_prove : sk -> Bytes.t
+
+    val pop_verify : pk -> Bytes.t -> bool
+  end
+end
