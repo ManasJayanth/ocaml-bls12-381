@@ -8,6 +8,10 @@
 
 (copy_files ../test_vectors/hash_to_curve_g2/{*})
 
+(copy_files ../test_vectors/sig_g1_basic/{*})
+
+(copy_files ../test_vectors/sig_g2_basic/{*})
+
 (tests
  (names
    test_fr
@@ -19,6 +23,7 @@
    test_pairing
    test_random_state
    test_hash_to_curve
+   test_signature
  )
  (modules
    test_fr
@@ -31,6 +36,7 @@
    test_ec_make
    test_random_state
    test_hash_to_curve
+   test_signature
  )
  (package bls12-381-unix-blst)
  (deps
@@ -65,5 +71,29 @@
    g2_fips_186_3_P384
    g2_fips_186_3_P521
    g2_rfc6979
+   sig_g1_basic_fips_186_3_B233
+   sig_g1_basic_fips_186_3_B283
+   sig_g1_basic_fips_186_3_B409
+   sig_g1_basic_fips_186_3_B571
+   sig_g1_basic_fips_186_3_K233
+   sig_g1_basic_fips_186_3_K409
+   sig_g1_basic_fips_186_3_K571
+   sig_g1_basic_fips_186_3_P224
+   sig_g1_basic_fips_186_3_P256
+   sig_g1_basic_fips_186_3_P384
+   sig_g1_basic_fips_186_3_P521
+   sig_g1_basic_rfc6979
+   sig_g2_basic_fips_186_3_B233
+   sig_g2_basic_fips_186_3_B283
+   sig_g2_basic_fips_186_3_B409
+   sig_g2_basic_fips_186_3_B571
+   sig_g2_basic_fips_186_3_K233
+   sig_g2_basic_fips_186_3_K409
+   sig_g2_basic_fips_186_3_K571
+   sig_g2_basic_fips_186_3_P224
+   sig_g2_basic_fips_186_3_P256
+   sig_g2_basic_fips_186_3_P384
+   sig_g2_basic_fips_186_3_P521
+   sig_g2_basic_rfc6979
  )
  (libraries bls12-381-unix-blst alcotest ff-pbt hex))
