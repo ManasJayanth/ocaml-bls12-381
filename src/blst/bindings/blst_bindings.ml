@@ -779,3 +779,32 @@ module StubsPairing (S : Cstubs.FOREIGN) = struct
       "blst_final_exp"
       (ptr blst_fq12_t @-> ptr blst_fq12_t @-> returning void)
 end
+
+module StubsSignature (S : Cstubs.FOREIGN) = struct
+  open Ctypes
+  open Types
+  open S
+
+  let keygen =
+    foreign
+      "blst_keygen"
+      ( ptr blst_scalar_t @-> ocaml_bytes @-> size_t @-> ocaml_bytes @-> size_t
+      @-> returning void )
+
+  let sk_to_pk =
+    foreign
+      "blst_sk_to_pk_in_g1"
+      (ptr blst_g1_t @-> ptr blst_scalar_t @-> returning void)
+
+  let sign =
+    foreign
+      "blst_sign_pk_in_g1"
+      (ptr blst_g2_t @-> ptr blst_g2_t @-> ptr blst_scalar_t @-> returning void)
+
+  let core_verify =
+    foreign
+      "blst_core_verify_pk_in_g1"
+      ( ptr blst_g1_affine_t @-> ptr blst_g2_affine_t @-> bool @-> ocaml_bytes
+      @-> size_t @-> ocaml_bytes @-> size_t @-> ocaml_bytes @-> size_t
+      @-> returning int )
+end

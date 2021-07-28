@@ -58,7 +58,7 @@ module Signature : sig
 
   val sk_of_bytes_exn : Bytes.t -> sk
 
-  val sk_key_to_bytes : sk -> Bytes.t
+  val sk_to_bytes : sk -> Bytes.t
 
   val generate_sk : ?key_info:Bytes.t -> Bytes.t -> sk
 
@@ -82,8 +82,6 @@ module Signature : sig
     val sign : sk -> Bytes.t -> Bytes.t
 
     val verify : pk -> Bytes.t -> Bytes.t -> bool
-
-    (* val aggregate_signature : (sk * Bytes.t) list -> Bytes.t *)
   end
 
   (**
