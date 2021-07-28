@@ -3,6 +3,24 @@ module StubsFr = Blst_bindings.StubsFr (Blst_stubs)
 module StubsG1 = Blst_bindings.StubsG1 (Blst_stubs)
 module StubsG2 = Blst_bindings.StubsG2 (Blst_stubs)
 
+let check_unicity_lst lst =
+  let rec aux tbl lst =
+    match lst with
+    | [] -> true
+    | hd :: tl ->
+        if Hashtbl.mem tbl hd then false
+        else (
+          Hashtbl.add tbl hd 0 ;
+          aux tbl tl)
+  in
+  let tbl = Hashtbl.create (List.length lst) in
+  aux tbl lst
+
+let allocate_blst_pairing_t () =
+  let allocated_memory = Stubs.malloc (Stubs.sizeof_pairing ()) in
+  Ctypes.(
+    coerce (ptr void) (ptr Blst_bindings.Types.blst_pairing_t) allocated_memory)
+
 type sk = Blst_bindings.Types.blst_scalar_t Ctypes.ptr
 
 type pk = G1.t
@@ -89,6 +107,86 @@ let core_verify pk msg signature dst =
       in
       res = 0
 
+let aggregate_signature_opt signatures =
+  let rec aux signatures acc =
+    match signatures with
+    | [] -> Some acc
+    | signature :: signatures -> (
+        let signature = G2.of_compressed_bytes_opt signature in
+        match signature with
+        | None -> None
+        | Some signature ->
+            let acc = G2.(add signature acc) in
+            aux signatures acc)
+  in
+  let res = aux signatures G2.zero in
+  match res with None -> None | Some res -> Some (G2.to_compressed_bytes res)
+
+let core_aggregate_verify pks_with_msgs aggregated_signature dst =
+  let rec aux aggregated_signature pks_with_msgs ctxt =
+    match pks_with_msgs with
+    | (pk, msg) :: rest ->
+        (* sign the message *)
+        let aggregated_signature =
+          match aggregated_signature with
+          | None ->
+              Ctypes.(from_voidp Blst_bindings.Types.blst_g2_affine_t null)
+          | Some aggregated_signature ->
+              let signature_affine =
+                Blst_bindings.Types.allocate_g2_affine ()
+              in
+              StubsG2.to_affine signature_affine aggregated_signature ;
+              signature_affine
+        in
+        let pk_affine = Blst_bindings.Types.allocate_g1_affine () in
+        StubsG1.to_affine pk_affine pk ;
+        let msg_length = Bytes.length msg in
+        let res =
+          Stubs.pairing_chk_n_mul_n_aggr_pk_in_g1
+            ctxt
+            pk_affine
+            (* Does not check pk is a point on the curve and in the subgroup, it
+               is verified by the OCaml type
+            *)
+            false
+            (* signature: must be null except the first one *)
+            aggregated_signature
+            (* Does not check signature is a point on the curve and in the subgroup, it
+               is verified by the OCaml type
+            *)
+            false
+            (* scalar *)
+            (Ctypes.ocaml_bytes_start Bytes.empty)
+            Unsigned.Size_t.zero
+            (* msg *)
+            (Ctypes.ocaml_bytes_start msg)
+            (Unsigned.Size_t.of_int msg_length)
+            (* aug *)
+            (Ctypes.ocaml_bytes_start Bytes.empty)
+            Unsigned.Size_t.zero
+        in
+        assert (res = 0) ;
+        aux None rest ctxt
+    | [] -> ()
+  in
+  let aggregated_signature_opt =
+    G2.of_compressed_bytes_opt aggregated_signature
+  in
+  match aggregated_signature_opt with
+  | None -> false
+  | Some aggregated_signature ->
+      let ctxt = allocate_blst_pairing_t () in
+      Stubs.pairing_init
+        ctxt
+        true
+        (Ctypes.ocaml_bytes_start dst)
+        (Unsigned.Size_t.of_int (Bytes.length dst)) ;
+      aux (Some aggregated_signature) pks_with_msgs ctxt ;
+      Stubs.pairing_commit ctxt ;
+      Stubs.pairing_finalverify
+        ctxt
+        Ctypes.(from_voidp Blst_bindings.Types.blst_fq12_t null)
+
 module Basic = struct
   let dst = Bytes.of_string "BLS_SIG_BLS12381G2_XMD:SHA-256_SSWU_RO_NUL_"
 
@@ -97,6 +195,12 @@ module Basic = struct
   let sign sk message = core_sign sk message dst
 
   let verify pk msg signature = core_verify pk msg signature dst
+
+  let aggregate_verify pks_with_msgs aggregated_signature =
+    let msgs = List.map snd pks_with_msgs in
+    if check_unicity_lst msgs then
+      core_aggregate_verify pks_with_msgs aggregated_signature dst
+    else raise (Invalid_argument "Messages must be distinct")
 end
 
 module Aug = struct
@@ -120,6 +224,15 @@ module Aug = struct
     let pk_bytes = G1.to_compressed_bytes pk in
     let msg = Bytes.concat Bytes.empty [pk_bytes; msg] in
     core_verify pk msg signature dst
+
+  let aggregate_verify pks_with_msgs aggregated_signature =
+    let pks_with_msgs =
+      List.map
+        (fun (pk, msg) ->
+          (pk, Bytes.concat Bytes.empty [G1.to_compressed_bytes pk; msg]))
+        pks_with_msgs
+    in
+    core_aggregate_verify pks_with_msgs aggregated_signature dst
 end
 
 module Pop = struct
@@ -141,4 +254,15 @@ module Pop = struct
     let dst = Bytes.of_string "BLS_POP_BLS12381G2_XMD:SHA-256_SSWU_RO_POP_" in
     let msg = G1.to_compressed_bytes pk in
     core_verify pk msg signature dst
+
+  let aggregate_verify pks_with_pops msg aggregated_signature =
+    let pks = List.map fst pks_with_pops in
+    let aggregated_pk = List.fold_left G1.add G1.zero pks in
+    let signature_check = verify aggregated_pk msg aggregated_signature in
+    let pop_checks =
+      List.for_all
+        (fun (pk, signature) -> pop_verify pk signature)
+        pks_with_pops
+    in
+    pop_checks && signature_check
 end

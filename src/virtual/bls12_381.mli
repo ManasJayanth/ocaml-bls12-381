@@ -68,6 +68,10 @@ module Signature : sig
 
   val core_verify : pk -> Bytes.t -> Bytes.t -> Bytes.t -> bool
 
+  val aggregate_signature_opt : Bytes.t list -> Bytes.t option
+
+  val core_aggregate_verify : (pk * Bytes.t) list -> Bytes.t -> Bytes.t -> bool
+
   (**
     https://datatracker.ietf.org/doc/html/draft-irtf-cfrg-bls-signature-04#section-3.1
 
@@ -82,6 +86,8 @@ module Signature : sig
     val sign : sk -> Bytes.t -> Bytes.t
 
     val verify : pk -> Bytes.t -> Bytes.t -> bool
+
+    val aggregate_verify : (pk * Bytes.t) list -> Bytes.t -> bool
   end
 
   (**
@@ -95,6 +101,8 @@ module Signature : sig
     val sign : sk -> Bytes.t -> Bytes.t
 
     val verify : pk -> Bytes.t -> Bytes.t -> bool
+
+    val aggregate_verify : (pk * Bytes.t) list -> Bytes.t -> bool
   end
 
   module Pop : sig
@@ -105,5 +113,7 @@ module Signature : sig
     val pop_prove : sk -> Bytes.t
 
     val pop_verify : pk -> Bytes.t -> bool
+
+    val aggregate_verify : pk list -> Bytes.t -> Bytes.t -> bool
   end
 end

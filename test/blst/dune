@@ -28,6 +28,7 @@
    test_random_state
    test_hash_to_curve
    test_signature
+   test_aggregated_signature
  )
  (modules
    test_fr
@@ -41,6 +42,7 @@
    test_random_state
    test_hash_to_curve
    test_signature
+   test_aggregated_signature
  )
  (package bls12-381-unix-blst)
  (deps
