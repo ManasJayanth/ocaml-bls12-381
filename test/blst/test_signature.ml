@@ -166,22 +166,10 @@ let test_vectors_sig_g2_basic_from_bls_sigs_ref_files () =
           (List.nth contents 0, List.nth contents 1, List.nth contents 2)
         in
         let msg = Hex.(to_bytes (`Hex msg_str)) in
-        Printf.printf "Msg: %s\nikm: %s\n" msg_str ikm_str ;
         let ikm = Hex.to_bytes (`Hex ikm_str) in
         if Bytes.length ikm < 32 then ()
         else
           let sk = Bls12_381.Signature.generate_sk ikm in
-          let sk_bytes = Bls12_381.Signature.sk_to_bytes sk in
-          let sk_python =
-            Bls12_381.Fr.of_string
-              "24635582912660024530429349282963467630610468040467798128166931744376504592370"
-          in
-          Printf.printf
-            "ikm: %s, Sk: 0x%s, sk python: %s\n"
-            ikm_str
-            Hex.(show (of_bytes sk_bytes))
-            Hex.(show (of_bytes (Bls12_381.Fr.to_bytes sk_python))) ;
-          let sk = Bls12_381.Signature.sk_of_bytes_exn sk_bytes in
           let expected_result = Hex.(to_bytes (`Hex expected_result_str)) in
           let expected_result =
             Bls12_381.G2.of_compressed_bytes_exn expected_result
@@ -217,8 +205,8 @@ let () =
     [ BasicProperties.get_tests ();
       AugProperties.get_tests ();
       ( "Test vectors from Bls_sigs_ref",
-        [ test_case "Sign G2 basic" `Quick test_vectors_sig_g2_basic
-          (* test_case
-           *   "Sign G2 basic from file"
-           *   `Quick
-           *   test_vectors_sig_g2_basic_from_bls_sigs_ref_files *) ] ) ]
+        [ test_case "Sign G2 basic" `Quick test_vectors_sig_g2_basic;
+          test_case
+            "Sign G2 basic from file"
+            `Quick
+            test_vectors_sig_g2_basic_from_bls_sigs_ref_files ] ) ]
