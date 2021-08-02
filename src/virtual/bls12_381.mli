@@ -79,7 +79,7 @@ module Signature : sig
 
     val verify : pk -> Bytes.t -> Bytes.t -> bool
 
-    val aggregate_signature : (sk * Bytes.t) list -> Bytes.t
+    (* val aggregate_signature : (sk * Bytes.t) list -> Bytes.t *)
   end
 
   (**

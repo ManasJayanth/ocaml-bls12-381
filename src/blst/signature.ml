@@ -99,32 +99,32 @@ module Basic = struct
         in
         res = 0
 
-  let aggregate_signature sks_with_msgs =
-    let rec aux sks_with_msgs ctxt =
-      match sks_with_msgs with
-      | (sk, msg) :: rest ->
-          (* sign the message *)
-          let hash = G2.hash_to_curve msg dst in
-          let signature = Blst_bindings.Types.allocate_g2 () in
-          Stubs.sign signature hash sk ;
-          let pk = derive_pk sk in
-          let msg_length = Bytes.length msg in
-          let res =
-            Stubs.aggregate_signature
-              ctxt
-              pk
-              signature
-              (Ctypes.ocaml_bytes_start msg)
-              msg_length
-              (Ctypes.ocaml_bytes_start Bytes.empty)
-              Unsigned.Size_t.zero
-          in
-          assert (res = 0) ;
-          aux rest ctxt
-      | [] -> ctxt
-    in
-    let ctxt = Blst_bindings.Types.allocate_aggregation_ctxt () in
-    aux sks_with_msgs ctxt
+  (* let aggregate_signature sks_with_msgs =
+   *   let rec aux sks_with_msgs ctxt =
+   *     match sks_with_msgs with
+   *     | (sk, msg) :: rest ->
+   *         (\* sign the message *\)
+   *         let hash = G2.hash_to_curve msg dst in
+   *         let signature = Blst_bindings.Types.allocate_g2 () in
+   *         Stubs.sign signature hash sk ;
+   *         let pk = derive_pk sk in
+   *         let msg_length = Bytes.length msg in
+   *         let res =
+   *           Stubs.aggregate_signature
+   *             ctxt
+   *             pk
+   *             signature
+   *             (Ctypes.ocaml_bytes_start msg)
+   *             msg_length
+   *             (Ctypes.ocaml_bytes_start Bytes.empty)
+   *             Unsigned.Size_t.zero
+   *         in
+   *         assert (res = 0) ;
+   *         aux rest ctxt
+   *     | [] -> ctxt
+   *   in
+   *   let ctxt = Blst_bindings.Types.allocate_aggregation_ctxt () in
+   *   aux sks_with_msgs ctxt *)
 end
 
 module Aug = struct
