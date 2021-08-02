@@ -6,6 +6,8 @@
 
 #include "consts.h"
 #include "sha256.h"
+#include "stdio.h"
+#include "stdlib.h"
 
 typedef struct {
     SHA256_CTX ctx;
@@ -123,10 +125,10 @@ static void HKDF_Expand(unsigned char *OKM, size_t L,
 void blst_keygen(pow256 SK, const void *IKM, size_t IKM_len,
                             const void *info, size_t info_len)
 {
-    struct {
-        HMAC_SHA256_CTX ctx;
-        unsigned char PRK[32], OKM[48];
-        vec512 key;
+  struct {
+    HMAC_SHA256_CTX ctx;
+    unsigned char PRK[32], OKM[48];
+    vec512 key;
     } scratch;
     unsigned char salt[32] = "BLS-SIG-KEYGEN-SALT-";
     size_t salt_len = 20;
@@ -144,18 +146,37 @@ void blst_keygen(pow256 SK, const void *IKM, size_t IKM_len,
 
     do {
         /* salt = H(salt) */
-        sha256_init(&scratch.ctx.ctx);
-        sha256_update(&scratch.ctx.ctx, salt, salt_len);
-        sha256_final(salt, &scratch.ctx.ctx);
+        /* sha256_init(&scratch.ctx.ctx); */
+        /* sha256_update(&scratch.ctx.ctx, salt, salt_len); */
+        /* sha256_final(salt, &scratch.ctx.ctx); */
         salt_len = sizeof(salt);
 
         /* PRK = HKDF-Extract(salt, IKM || I2OSP(0, 1)) */
         HKDF_Extract(scratch.PRK, salt, salt_len,
                                   IKM, IKM_len, &scratch.ctx);
 
+        printf("IKM (size = %ld): [", IKM_len);
+        for (size_t i = 0; i < IKM_len ; i++) {
+          printf("%hhu, ", *((unsigned char *) IKM + i));
+        }
+        printf("]\n");
+
+        printf("PRK (size = %ld): [",
+               sizeof(scratch.PRK));
+        for (size_t i = 0; i < sizeof(scratch.PRK); i++) {
+          printf("%hhu, ", *((unsigned char *)scratch.PRK + i));
+        }
+        printf("]\n");
+
         /* OKM = HKDF-Expand(PRK, key_info || I2OSP(L, 2), L) */
         HKDF_Expand(scratch.OKM, sizeof(scratch.OKM), scratch.PRK,
                     info, info_len, &scratch.ctx);
+        printf("OKM (size = %ld): [", sizeof(scratch.OKM));
+        for(size_t i = 0;i < sizeof(scratch.OKM); i++) {
+          printf("%hhu, ", *(scratch.OKM + i));
+        }
+        printf("]\n");
+        fflush(stdout);
 
         /* SK = OS2IP(OKM) mod r */
         vec_zero(scratch.key, sizeof(scratch.key));
