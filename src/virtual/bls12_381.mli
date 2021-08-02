@@ -50,6 +50,7 @@ module Pairing : sig
   val final_exponentiation_exn : Fq12.t -> Fq12.t
 end
 
+(** Follow https://tools.ietf.org/pdf/draft-irtf-cfrg-bls-signature-04.pdf *)
 module Signature : sig
   type sk
 
