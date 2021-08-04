@@ -846,4 +846,11 @@ module StubsSignature (S : Cstubs.FOREIGN) = struct
     foreign
       "blst_pairing_finalverify"
       (ptr blst_pairing_t @-> ptr blst_fq12_t @-> returning bool)
+
+  let pairing_chk_n_mul_n_aggr_pk_in_g1 =
+    foreign
+      "blst_pairing_chk_n_mul_n_aggr_pk_in_g1"
+      ( ptr blst_pairing_t @-> ptr blst_g1_affine_t @-> bool
+      @-> ptr blst_g2_affine_t @-> bool @-> ocaml_bytes @-> size_t
+      @-> ocaml_bytes @-> size_t @-> ocaml_bytes @-> size_t @-> returning int )
 end

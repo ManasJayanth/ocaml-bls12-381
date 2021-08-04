@@ -11,7 +11,7 @@ let check_unicity_lst lst =
         if Hashtbl.mem tbl hd then false
         else (
           Hashtbl.add tbl hd 0 ;
-          aux tbl tl)
+          aux tbl tl )
   in
   let tbl = Hashtbl.create (List.length lst) in
   aux tbl lst
@@ -81,31 +81,48 @@ let core_sign sk message dst =
   G2.to_compressed_bytes buffer
 
 let core_verify pk msg signature dst =
-  let dst_length = Bytes.length dst in
-  let msg_length = Bytes.length msg in
-  (* Subgroup check is performed by of_bytes_opt *)
   let signature_opt = G2.of_compressed_bytes_opt signature in
   match signature_opt with
   | None -> false
   | Some signature ->
+      let dst_length = Bytes.length dst in
+      let ctxt = allocate_blst_pairing_t () in
+      Stubs.pairing_init
+        ctxt
+        true
+        (Ctypes.ocaml_bytes_start dst)
+        (Unsigned.Size_t.of_int dst_length) ;
+      let msg_length = Bytes.length msg in
       let signature_affine = Blst_bindings.Types.allocate_g2_affine () in
       StubsG2.to_affine signature_affine signature ;
       let pk_affine = Blst_bindings.Types.allocate_g1_affine () in
       StubsG1.to_affine pk_affine pk ;
       let res =
-        Stubs.core_verify
+        Stubs.pairing_chk_n_mul_n_aggr_pk_in_g1
+          ctxt
           pk_affine
+          (* Does not check pk is a point on the curve and in the subgroup, it
+             is verified by the OCaml type
+          *)
+          false
           signature_affine
-          (* to use hash_to_curve *)
-          true
+          (* Does not check signature is a point on the curve and in the subgroup, it
+             is verified by the OCaml type
+          *)
+          false
+          (Ctypes.ocaml_bytes_start Bytes.empty)
+          Unsigned.Size_t.zero
           (Ctypes.ocaml_bytes_start msg)
           (Unsigned.Size_t.of_int msg_length)
-          (Ctypes.ocaml_bytes_start dst)
-          (Unsigned.Size_t.of_int dst_length)
           (Ctypes.ocaml_bytes_start Bytes.empty)
           Unsigned.Size_t.zero
       in
-      res = 0
+      if res = 0 then (
+        Stubs.pairing_commit ctxt ;
+        Stubs.pairing_finalverify
+          ctxt
+          Ctypes.(from_voidp Blst_bindings.Types.blst_fq12_t null) )
+      else false
 
 let aggregate_signature_opt signatures =
   let rec aux signatures acc =
@@ -117,7 +134,7 @@ let aggregate_signature_opt signatures =
         | None -> None
         | Some signature ->
             let acc = G2.(add signature acc) in
-            aux signatures acc)
+            aux signatures acc )
   in
   let res = aux signatures G2.zero in
   match res with None -> None | Some res -> Some (G2.to_compressed_bytes res)
