@@ -48,16 +48,24 @@ module Signature = struct
 
   let core_verify _pk _msg _signature = failwith "Not implemented"
 
+  let aggregate_signature_opt _ = failwith "Not implemented"
+
+  let core_aggregate_verify _ _ _ = failwith "Not implemented"
+
   module Basic = struct
     let sign _sk _message = failwith "Not implemented"
 
     let verify _pk _msg _signature = failwith "Not implemented"
+
+    let aggregate_verify _ _ = failwith "Not implemented"
   end
 
   module Aug = struct
     let sign _sk _message = failwith "Not implemented"
 
     let verify _pk _msg _signature = failwith "Not implemented"
+
+    let aggregate_verify _ _ = failwith "Not implemented"
   end
 
   module Pop = struct
@@ -68,5 +76,7 @@ module Signature = struct
     let pop_prove _sk = failwith "Not implemented"
 
     let pop_verify _pk _signature = failwith "Not implemented"
+
+    let aggregate_verify _ _ _ = failwith "Not implemented"
   end
 end
