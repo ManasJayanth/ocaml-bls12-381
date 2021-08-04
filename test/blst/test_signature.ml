@@ -10,6 +10,18 @@ let read_file filename =
     close_in chan ;
     List.rev !lines
 
+let test_keygen_raise_invalid_argument_if_ikm_too_small () =
+  ignore
+  @@ Alcotest.check_raises
+       ""
+       (Invalid_argument
+          "generate_sk: ikm argument must be at least 32 bytes long")
+       (fun () ->
+         let ikm =
+           Bytes.init (Random.int 32) (fun _ -> char_of_int (Random.int 256))
+         in
+         ignore @@ Bls12_381.Signature.generate_sk ikm)
+
 module type SIG_SCHEME = sig
   val sign : Bls12_381.Signature.sk -> Bytes.t -> Bytes.t
 
@@ -310,7 +322,13 @@ let () =
   let open Alcotest in
   run
     "BLS Signature"
-    [ BasicProperties.get_tests ();
+    [ ( "Auxiliary functions",
+        [ test_case
+            "generate_sk raises Invalid_argument is ikm is smaller than 32 \
+             bytes"
+            `Quick
+            test_keygen_raise_invalid_argument_if_ikm_too_small ] );
+      BasicProperties.get_tests ();
       AugProperties.get_tests ();
       PopProperties.get_tests ();
       ( "Proof of possession proof/verify properties",

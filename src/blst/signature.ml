@@ -60,13 +60,17 @@ let generate_sk ?(key_info = Bytes.empty) ikm =
     Also, blst_keygen returns a vector of zero (commit
     095a8c53787d6c91b725152ebfbbf33acf05a931) if ikm is less than 32 bytes
   *)
-  assert (ikm_length >= 32) ;
-  Stubs.keygen
-    buffer_scalar
-    (Ctypes.ocaml_bytes_start ikm)
-    (Unsigned.Size_t.of_int ikm_length)
-    (Ctypes.ocaml_bytes_start key_info)
-    (Unsigned.Size_t.of_int key_info_length) ;
+  if ikm_length < 32 then
+    raise
+      (Invalid_argument
+         "generate_sk: ikm argument must be at least 32 bytes long")
+  else
+    Stubs.keygen
+      buffer_scalar
+      (Ctypes.ocaml_bytes_start ikm)
+      (Unsigned.Size_t.of_int ikm_length)
+      (Ctypes.ocaml_bytes_start key_info)
+      (Unsigned.Size_t.of_int key_info_length) ;
   buffer_scalar
 
 let derive_pk sk =
