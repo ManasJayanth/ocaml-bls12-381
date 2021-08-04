@@ -44,13 +44,7 @@ module Signature = struct
 
   let derive_pk _sk = failwith "Not implemented"
 
-  let core_sign _sk _message = failwith "Not implemented"
-
-  let core_verify _pk _msg _signature = failwith "Not implemented"
-
   let aggregate_signature_opt _ = failwith "Not implemented"
-
-  let core_aggregate_verify _ _ _ = failwith "Not implemented"
 
   module Basic = struct
     let sign _sk _message = failwith "Not implemented"

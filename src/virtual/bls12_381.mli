@@ -64,13 +64,8 @@ module Signature : sig
 
   val derive_pk : sk -> pk
 
-  val core_sign : sk -> Bytes.t -> Bytes.t -> Bytes.t
-
-  val core_verify : pk -> Bytes.t -> Bytes.t -> Bytes.t -> bool
-
   val aggregate_signature_opt : Bytes.t list -> Bytes.t option
 
-  val core_aggregate_verify : (pk * Bytes.t) list -> Bytes.t -> Bytes.t -> bool
 
   (**
     https://datatracker.ietf.org/doc/html/draft-irtf-cfrg-bls-signature-04#section-3.1
