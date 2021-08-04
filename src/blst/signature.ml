@@ -3,6 +3,8 @@ module StubsFr = Blst_bindings.StubsFr (Blst_stubs)
 module StubsG1 = Blst_bindings.StubsG1 (Blst_stubs)
 module StubsG2 = Blst_bindings.StubsG2 (Blst_stubs)
 
+type signature = Bytes.t
+
 let check_unicity_lst lst =
   let rec aux tbl lst =
     match lst with
@@ -253,6 +255,8 @@ module Aug = struct
 end
 
 module Pop = struct
+  type proof = Bytes.t
+
   let sign sk message =
     let dst = Bytes.of_string "BLS_SIG_BLS12381G2_XMD:SHA-256_SSWU_RO_POP_" in
     core_sign sk message dst

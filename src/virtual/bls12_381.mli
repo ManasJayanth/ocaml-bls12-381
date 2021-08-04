@@ -56,6 +56,9 @@ module Signature : sig
 
   type pk
 
+  (* Not abstracting the type to avoid to write (de)serialisation routines *)
+  type signature = Bytes.t
+
   val sk_of_bytes_exn : Bytes.t -> sk
 
   val sk_to_bytes : sk -> Bytes.t
@@ -78,11 +81,11 @@ module Signature : sig
     CoreVerify (Section 2), respectively.
   *)
   module Basic : sig
-    val sign : sk -> Bytes.t -> Bytes.t
+    val sign : sk -> Bytes.t -> signature
 
-    val verify : pk -> Bytes.t -> Bytes.t -> bool
+    val verify : pk -> Bytes.t -> signature -> bool
 
-    val aggregate_verify : (pk * Bytes.t) list -> Bytes.t -> bool
+    val aggregate_verify : (pk * Bytes.t) list -> signature -> bool
   end
 
   (**
@@ -93,22 +96,24 @@ module Signature : sig
     messages signed by different public keys are distinct.
   *)
   module Aug : sig
-    val sign : sk -> Bytes.t -> Bytes.t
+    val sign : sk -> Bytes.t -> signature
 
     val verify : pk -> Bytes.t -> Bytes.t -> bool
 
-    val aggregate_verify : (pk * Bytes.t) list -> Bytes.t -> bool
+    val aggregate_verify : (pk * Bytes.t) list -> signature -> bool
   end
 
+
   module Pop : sig
-    val sign : sk -> Bytes.t -> Bytes.t
+    (* Not abstracting the type to avoid to write (de)serialisation routines *)
+    type proof = Bytes.t
 
-    val verify : pk -> Bytes.t -> Bytes.t -> bool
+    val sign : sk -> Bytes.t -> signature
 
-    val pop_prove : sk -> Bytes.t
+    val verify : pk -> Bytes.t -> signature -> bool
 
-    val pop_verify : pk -> Bytes.t -> bool
-
-    val aggregate_verify : pk list -> Bytes.t -> Bytes.t -> bool
+    val pop_prove : sk -> proof
+    val pop_verify : pk -> proof -> bool
+    val aggregate_verify : (pk * proof) list -> Bytes.t -> signature -> bool
   end
 end

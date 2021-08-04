@@ -33,6 +33,8 @@ module Signature = struct
 
   type pk = Bytes.t
 
+  type signature = Bytes.t
+
   let sk_of_bytes_exn _sk = failwith "Not implemented"
 
   let sk_to_bytes _b = failwith "Not implemented"
@@ -63,6 +65,8 @@ module Signature = struct
   end
 
   module Pop = struct
+    type proof = Bytes.t
+
     let sign _sk _message = failwith "Not implemented"
 
     let verify _pk _msg _signature = failwith "Not implemented"

@@ -29,6 +29,8 @@ module G2 = G2
 module Pairing = Pairing
 
 module Signature = struct
+  type signature = Bytes.t
+
   type sk = Bytes.t
 
   type pk = Bytes.t
@@ -63,6 +65,8 @@ module Signature = struct
   end
 
   module Pop = struct
+    type proof = Bytes.t
+
     let sign _sk _message = failwith "Not implemented"
 
     let verify _pk _msg _signature = failwith "Not implemented"
