@@ -27,7 +27,7 @@ module Stubs = Blst_bindings.StubsFr (Blst_stubs)
 module Fr = struct
   exception Not_in_field of Bytes.t
 
-  type t = Blst_bindings.Types.blst_fr_t Ctypes.ptr
+  type t = Blst_bindings.Types.blst_fr_t Ctypes.ptr * Bytes.t
 
   let size_in_bytes = 32
 
@@ -54,7 +54,7 @@ module Fr = struct
       if Stubs.check_scalar buffer_scalar then (
         let buffer_fr = Blst_bindings.Types.allocate_fr () in
         Stubs.fr_of_scalar buffer_fr buffer_scalar ;
-        Some buffer_fr )
+        Some (buffer_fr, Bytes.copy bs) )
       else None
 
   let of_bytes_exn bs =
@@ -77,19 +77,18 @@ module Fr = struct
     Bytes.set bytes 0 '\001' ;
     of_bytes_exn bytes
 
-  let to_bytes x =
-    let buffer_bytes = Bytes.make size_in_bytes '\000' in
+  let ptr_to_bytes x_ptr =
     let buffer_scalar = Blst_bindings.Types.allocate_scalar () in
-    Stubs.scalar_of_fr buffer_scalar x ;
+    let buffer_bytes = Bytes.make size_in_bytes '\000' in
+    Stubs.scalar_of_fr buffer_scalar x_ptr ;
     Stubs.scalar_to_bytes_le
       (Ctypes.ocaml_bytes_start buffer_bytes)
       buffer_scalar ;
     buffer_bytes
 
-  let eq x y =
-    let x_bytes = to_bytes x in
-    let y_bytes = to_bytes y in
-    Bytes.equal x_bytes y_bytes
+  let to_bytes (_x_ptr, x_bytes) = x_bytes
+
+  let eq (_x_ptr, x_bytes) (_y_ptr, y_bytes) = Bytes.equal x_bytes y_bytes
 
   let ( = ) = eq
 
@@ -109,34 +108,35 @@ module Fr = struct
     let r = random ?state () in
     if is_zero r then non_null_random ?state () else r
 
-  let add x y =
+  let add (x, _) (y, _) =
     let buffer = Blst_bindings.Types.allocate_fr () in
     Stubs.add buffer x y ;
-    buffer
+    (buffer, ptr_to_bytes buffer)
 
   let ( + ) = add
 
-  let mul x y =
+  let mul (x, _) (y, _) =
     let buffer = Blst_bindings.Types.allocate_fr () in
     Stubs.mul buffer x y ;
-    buffer
+    (buffer, ptr_to_bytes buffer)
 
   let ( * ) = mul
 
   let inverse_opt x =
+    let (x_ptr, _) = x in
     if is_zero x then None
     else
       let buffer = Blst_bindings.Types.allocate_fr () in
-      Stubs.eucl_inverse buffer x ;
-      Some buffer
+      Stubs.eucl_inverse buffer x_ptr ;
+      Some (buffer, ptr_to_bytes buffer)
 
   let inverse_exn x =
     match inverse_opt x with None -> raise Division_by_zero | Some x -> x
 
-  let sub a b =
+  let sub (a, _) (b, _) =
     let buffer = Blst_bindings.Types.allocate_fr () in
     Stubs.sub buffer a b ;
-    buffer
+    (buffer, ptr_to_bytes buffer)
 
   let square x = x * x
 
@@ -168,9 +168,8 @@ module Fr = struct
 
   let ( ** ) = pow
 
-  let to_string s =
-    let bytes = to_bytes s in
-    let z = Z.of_bits (Bytes.to_string bytes) in
+  let to_string (_, bs) =
+    let z = Z.of_bits (Bytes.to_string bs) in
     Z.to_string z
 
   let of_z z =

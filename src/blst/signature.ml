@@ -56,7 +56,7 @@ let sk_of_bytes_exn bytes =
          "Input should be maximum 32 bytes, encoded the secret key in little \
           endian")
   else
-    let sk = Fr.of_bytes_exn bytes in
+    let (sk, _sk_bytes) = Fr.of_bytes_exn bytes in
     StubsFr.scalar_of_fr buffer sk ;
     buffer
 
