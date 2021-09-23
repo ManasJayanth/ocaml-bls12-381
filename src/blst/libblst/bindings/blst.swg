@@ -218,26 +218,28 @@
         // .itemsize to return size of point, and len() - amount of points
         PyMemoryView_GET_BUFFER($result)->itemsize  = sizeof($1[0]);
         PyMemoryView_GET_BUFFER($result)->shape[0] /= sizeof($1[0]);
+    } else {
+        Py_DECREF(obj$argnum);
     }
 %}
 %apply POINT points[] { blst_p1_affine dst[], blst_p2_affine dst[] }
 
-%extend blst::P1s {
-    static PyObject* to_affine(blst_p1_affine dst[], const blst::P1* points[],
+%extend blst::P1_Affines {
+    static PyObject* as_memory(blst_p1_affine dst[], const blst::P1* points[],
                                                      size_t npoints)
     {   blst_p1s_to_affine(dst, (const blst_p1 **)points, npoints);
         return NULL;    // ignored by 'argout' typemap above
     }
 }
-%extend blst::P2s {
-    static PyObject* to_affine(blst_p2_affine dst[], const blst::P2* points[],
+%extend blst::P2_Affines {
+    static PyObject* as_memory(blst_p2_affine dst[], const blst::P2* points[],
                                                      size_t npoints)
     {   blst_p2s_to_affine(dst, (const blst_p2 **)points, npoints);
         return NULL;    // ignored by 'argout' typemap above
     }
 }
-%ignore P1s::P1s(); %ignore P1s::to_affine; %ignore P1s::~P1s();
-%ignore P2s::P2s(); %ignore P2s::to_affine; %ignore P2s::~P2s();
+%nodefault blst::P1_Affines;
+%nodefault blst::P2_Affines;
 
 %typemap(in) (const byte* scalars[], size_t nbits)
     (std::unique_ptr<byte[]> bytes, byte *scalars[2]) %{
@@ -644,7 +646,8 @@ import java.nio.file.*;
        (const byte *DST,    size_t DST_len),
        (const byte *aug,    size_t aug_len),
        (const byte *IKM,    size_t IKM_len),
-       (const byte *info,   size_t info_len)
+       (const byte *info,   size_t info_len),
+       (const byte *in,     size_t len)
 }
 
 // some sorcery to return byte[] from serialization methods
@@ -694,20 +697,24 @@ import java.nio.file.*;
 #pragma SWIG nowarn=509,516
 
 #if !defined(SWIGPYTHON)
-%ignore P1s;
-%ignore P2s;
+%ignore P1_Affines;
+%ignore P2_Affines;
 #endif
 
 %ignore nullptr;
 %ignore None;
 %ignore C_bytes;
-%catches(BLST_ERROR) P1(const byte* in);
-%catches(BLST_ERROR) P1_Affine(const byte* in);
+%catches(BLST_ERROR) P1(const byte* in, size_t len);
+%catches(BLST_ERROR) P1_Affine(const byte* in, size_t len);
 %catches(BLST_ERROR) aggregate(const P1_Affine& in);
 
-%catches(BLST_ERROR) P2(const byte* in);
-%catches(BLST_ERROR) P2_Affine(const byte* in);
+%catches(BLST_ERROR) P2(const byte* in, size_t len);
+%catches(BLST_ERROR) P2_Affine(const byte* in, size_t len);
 %catches(BLST_ERROR) aggregate(const P2_Affine& in);
+
+%catches(BLST_ERROR) blst::Scalar::add;
+%catches(BLST_ERROR) blst::Scalar::sub;
+%catches(BLST_ERROR) blst::Scalar::mul;
 
 // methods returning |this|
 %apply SELF* OUTPUT {
@@ -720,7 +727,13 @@ import java.nio.file.*;
     blst::P1* add,          blst::P2* add,
     blst::P1* dbl,          blst::P2* dbl,
     blst::PT* mul,          blst::PT* sqr,
-    blst::PT* final_exp
+    blst::PT* final_exp,
+    blst::Scalar* from_bendian,
+    blst::Scalar* from_lendian,
+    blst::Scalar* add,
+    blst::Scalar* sub,
+    blst::Scalar* mul,
+    blst::Scalar* inverse
 }
 
 typedef enum {

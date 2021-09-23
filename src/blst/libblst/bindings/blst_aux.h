@@ -60,4 +60,13 @@ void expand_message_xmd(unsigned char *bytes, size_t len_in_bytes,
                         const unsigned char *DST, size_t DST_len);
 #endif
 
+void blst_p1_unchecked_mult(blst_p1 *out, const blst_p1 *p, const byte *scalar,
+                                                            size_t nbits);
+void blst_p2_unchecked_mult(blst_p2 *out, const blst_p2 *p, const byte *scalar,
+                                                            size_t nbits);
+
+void blst_pairing_raw_aggregate(blst_pairing *ctx, const blst_p2_affine *q,
+                                                   const blst_p1_affine *p);
+blst_fp12 *blst_pairing_as_fp12(blst_pairing *ctx);
+
 #endif

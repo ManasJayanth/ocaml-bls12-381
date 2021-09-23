@@ -13,6 +13,11 @@ package blst
 // #cgo CFLAGS: -I${SRCDIR}/.. -I${SRCDIR}/../../build -I${SRCDIR}/../../src -D__BLST_CGO__
 // #cgo amd64 CFLAGS: -D__ADX__ -mno-avx -fno-builtin-memcpy
 // #include "blst.h"
+// static byte *copy_DST(limb_t *ctx, const byte *DST, size_t DST_len)
+// {   byte *dst = (byte*)ctx;
+//     while(DST_len--) *dst++ = *DST++;
+//     return (byte *)ctx;
+// }
 import "C"
 import (
 	"fmt"
@@ -99,10 +104,13 @@ func KeyGen(ikm []byte, optional ...[]byte) *SecretKey {
 // Pairing
 //
 func PairingCtx(hash_or_encode bool, DST []byte) Pairing {
-	ctx := make([]uint64, C.blst_pairing_sizeof()/8)
+	sz := int(C.blst_pairing_sizeof()) / 8
+	add_sz := (len(DST) + 7) / 8
+	ctx := make([]uint64, sz+add_sz)
 	var uDST *C.byte
 	if len(DST) > 0 {
-		uDST = (*C.byte)(&DST[0])
+		uDST = C.copy_DST((*C.limb_t)(&ctx[sz]), (*C.byte)(&DST[0]),
+			C.size_t(len(DST)))
 	}
 	C.blst_pairing_init((*C.blst_pairing)(&ctx[0]), C.bool(hash_or_encode),
 		uDST, C.size_t(len(DST)))
@@ -229,6 +237,14 @@ func PairingFinalVerify(ctx Pairing, optional ...*Fp12) bool {
 		gtsig = optional[0]
 	}
 	return bool(C.blst_pairing_finalverify((*C.blst_pairing)(&ctx[0]), gtsig))
+}
+
+func PairingRawAggregate(ctx Pairing, q *P2Affine, p *P1Affine) {
+	C.blst_pairing_raw_aggregate((*C.blst_pairing)(&ctx[0]), q, p)
+}
+
+func PairingAsFp12(ctx Pairing) Fp12 {
+	return *C.blst_pairing_as_fp12((*C.blst_pairing)(&ctx[0]))
 }
 
 func Fp12One() Fp12 {
@@ -383,16 +399,7 @@ func (dummy *P2Affine) AggregateVerifyCompressed(sig []byte, sigGroupcheck bool,
 
 	sigFn := func() *P2Affine {
 		sigP := new(P2Affine)
-		if len(sig) == BLST_P2_SERIALIZE_BYTES && (sig[0]&0x80) == 0 {
-			// Not compressed
-			if sigP.Deserialize(sig) == nil {
-				return nil
-			}
-		} else if len(sig) == BLST_P2_COMPRESS_BYTES && (sig[0]&0x80) != 0 {
-			if sigP.Uncompress(sig) == nil {
-				return nil
-			}
-		} else {
+		if sigP.Uncompress(sig) == nil {
 			return nil
 		}
 		return sigP
@@ -708,18 +715,8 @@ func (agg *P2Aggregate) AggregateCompressed(elmts [][]byte,
 	}
 	getter := func(i uint32, p *P2Affine) *P2Affine {
 		bytes := elmts[i]
-		if len(bytes) == 0 {
+		if p.Uncompress(bytes) == nil {
 			return nil
-		}
-		if bytes[0]&0x80 == 0 {
-			// Not compressed
-			if p.Deserialize(bytes) == nil {
-				return nil
-			}
-		} else {
-			if p.Uncompress(bytes) == nil {
-				return nil
-			}
 		}
 		return p
 	}
@@ -985,16 +982,7 @@ func (dummy *P1Affine) AggregateVerifyCompressed(sig []byte, sigGroupcheck bool,
 
 	sigFn := func() *P1Affine {
 		sigP := new(P1Affine)
-		if len(sig) == BLST_P1_SERIALIZE_BYTES && (sig[0]&0x80) == 0 {
-			// Not compressed
-			if sigP.Deserialize(sig) == nil {
-				return nil
-			}
-		} else if len(sig) == BLST_P1_COMPRESS_BYTES && (sig[0]&0x80) != 0 {
-			if sigP.Uncompress(sig) == nil {
-				return nil
-			}
-		} else {
+		if sigP.Uncompress(sig) == nil {
 			return nil
 		}
 		return sigP
@@ -1310,18 +1298,8 @@ func (agg *P1Aggregate) AggregateCompressed(elmts [][]byte,
 	}
 	getter := func(i uint32, p *P1Affine) *P1Affine {
 		bytes := elmts[i]
-		if len(bytes) == 0 {
+		if p.Uncompress(bytes) == nil {
 			return nil
-		}
-		if bytes[0]&0x80 == 0 {
-			// Not compressed
-			if p.Deserialize(bytes) == nil {
-				return nil
-			}
-		} else {
-			if p.Uncompress(bytes) == nil {
-				return nil
-			}
 		}
 		return p
 	}
@@ -1584,6 +1562,10 @@ func (points P1s) ToAffine() P1Affines {
 	return P1sToAffine([]*P1{&points[0], nil}, len(points))
 }
 
+func (p *P1) FromAffine(pa *P1Affine) {
+	C.blst_p1_from_affine(p, pa)
+}
+
 //
 // Batch addition
 //
@@ -1804,6 +1786,10 @@ func P2sToAffine(points []*P2, optional ...int) P2Affines {
 
 func (points P2s) ToAffine() P2Affines {
 	return P2sToAffine([]*P2{&points[0], nil}, len(points))
+}
+
+func (p *P2) FromAffine(pa *P2Affine) {
+	C.blst_p2_from_affine(p, pa)
 }
 
 //

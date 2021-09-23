@@ -12,6 +12,9 @@ EXPORTS
 	blst_scalar_fr_check
 	blst_sk_check
 	blst_sk_add_n_check
+	blst_sk_sub_n_check
+	blst_sk_mul_n_check
+	blst_sk_inverse
 	blst_scalar_from_le_bytes
 	blst_scalar_from_be_bytes
 	blst_fr_add
@@ -187,4 +190,8 @@ EXPORTS
 	blst_uniq_sizeof
 	blst_uniq_init
 	blst_uniq_test
+	blst_p1_unchecked_mult
+	blst_p2_unchecked_mult
+	blst_pairing_raw_aggregate
+	blst_pairing_as_fp12
 
