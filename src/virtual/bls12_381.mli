@@ -635,3 +635,17 @@ module Signature : sig
     val aggregate_verify : (pk * proof) list -> Bytes.t -> signature -> bool
   end
 end
+
+module Poseidon128 : sig
+  type ctxt
+
+  val constants_init : Fr.t array -> Fr.t array array -> unit
+
+  val init : Fr.t array -> ctxt
+
+  val apply_perm : ctxt -> unit
+
+  val get : ctxt -> Fr.t array
+
+  val finalize : unit -> unit
+end
