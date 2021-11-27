@@ -86,8 +86,12 @@ module Stubs = struct
     = "caml_fft_g1_inplace_stubs"
 
   external pippenger :
-    jacobian -> jacobian array -> Unsigned.Size_t.t -> Fr.t array -> unit
-    = "caml_blst_g1_pippenger"
+    jacobian ->
+    jacobian array ->
+    Fr.t array ->
+    Unsigned.Size_t.t ->
+    Unsigned.Size_t.t ->
+    unit = "caml_blst_g1_pippenger"
 
   external mul_map_inplace : jacobian array -> Fr.Stubs.fr -> int -> unit
     = "caml_mul_map_g1_inplace_stubs"
@@ -128,7 +132,7 @@ module G1 = struct
         let buffer = Stubs.allocate_g1 () in
         Stubs.from_affine buffer buffer_affine ;
         let is_in_prime_subgroup = Stubs.in_g1 buffer in
-        if is_in_prime_subgroup then Some buffer else None )
+        if is_in_prime_subgroup then Some buffer else None)
       else None
 
   let of_bytes_exn bs =
@@ -159,7 +163,7 @@ module G1 = struct
       let buffer = Stubs.allocate_g1 () in
       Stubs.from_affine buffer buffer_affine ;
       let is_in_prime_subgroup = Stubs.in_g1 buffer in
-      if is_in_prime_subgroup then Some buffer else None )
+      if is_in_prime_subgroup then Some buffer else None)
     else None
 
   let of_compressed_bytes_exn bs =
@@ -295,12 +299,20 @@ module G1 = struct
       Unsigned.Size_t.zero ;
     buffer
 
-  let pippenger ps ss =
-    let n = Array.length ps in
-    if n = 1 then mul ps.(0) ss.(0)
+  let pippenger ?(start = 0) ?len ps ss =
+    let l = Array.length ps in
+    let len = Option.value ~default:(l - start) len in
+    if start < 0 || len < 1 || start + len > l then
+      raise @@ Invalid_argument (Format.sprintf "start %i len %i" start len) ;
+    if len = 1 then mul ps.(start) ss.(start)
     else
       let buffer = Stubs.allocate_g1 () in
-      Stubs.pippenger buffer ps (Unsigned.Size_t.of_int n) ss ;
+      Stubs.pippenger
+        buffer
+        ps
+        ss
+        (Unsigned.Size_t.of_int start)
+        (Unsigned.Size_t.of_int len) ;
       buffer
 end
 

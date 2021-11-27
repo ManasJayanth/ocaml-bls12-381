@@ -125,7 +125,7 @@ module G2 = struct
         let buffer = Stubs.allocate_g2 () in
         Stubs.from_affine buffer buffer_affine ;
         let is_in_prime_subgroup = Stubs.in_g2 buffer in
-        if is_in_prime_subgroup then Some buffer else None )
+        if is_in_prime_subgroup then Some buffer else None)
       else None
 
   let of_bytes_exn bs =
@@ -138,7 +138,7 @@ module G2 = struct
       let buffer = Stubs.allocate_g2 () in
       Stubs.from_affine buffer buffer_affine ;
       let is_in_prime_subgroup = Stubs.in_g2 buffer in
-      if is_in_prime_subgroup then Some buffer else None )
+      if is_in_prime_subgroup then Some buffer else None)
     else None
 
   let of_compressed_bytes_exn bs =
@@ -331,7 +331,9 @@ module G2 = struct
       Unsigned.Size_t.zero ;
     buffer
 
-  let pippenger ps ss =
+  let pippenger ?(start = 0) ?len ps ss =
+    ignore start ;
+    ignore len ;
     let n = Array.length ps in
     if n = 1 then mul ps.(0) ss.(0)
     else

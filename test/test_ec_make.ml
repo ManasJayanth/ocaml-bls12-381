@@ -28,7 +28,7 @@ let rec repeat n f =
     f
   else (
     f () ;
-    repeat (n - 1) f )
+    repeat (n - 1) f)
 
 (* copied from G_SIG to remove the dependency on
    bls12-381-gen
@@ -134,7 +134,7 @@ module type G_SIG = sig
 
   val hash_to_curve : Bytes.t -> Bytes.t -> t
 
-  val pippenger : t array -> Scalar.t array -> t
+  val pippenger : ?start:int -> ?len:int -> t array -> Scalar.t array -> t
 end
 
 module MakeBulkOperations (G : G_SIG) = struct
@@ -145,13 +145,17 @@ module MakeBulkOperations (G : G_SIG) = struct
 
   let test_pippenger () =
     let n = 1 + Random.int 5 in
+    let start = Random.int n in
+    let len = 1 + Random.int (n - start) in
     let ps = Array.init n (fun _ -> G.random ()) in
     let ss = Array.init n (fun _ -> G.Scalar.random ()) in
-    let xs = List.init n (fun i -> (ps.(i), ss.(i))) in
     let left =
+      let ps = Array.sub ps start len in
+      let ss = Array.sub ss start len in
+      let xs = List.combine (Array.to_list ps) (Array.to_list ss) in
       List.fold_left (fun acc (g, n) -> G.add acc (G.mul g n)) G.zero xs
     in
-    let right = G.pippenger ps ss in
+    let right = G.pippenger ~start ~len ps ss in
     assert (G.(eq left right))
 
   let get_tests () =
@@ -346,7 +350,7 @@ module MakeECProperties (G : G_SIG) = struct
       G.(
         eq
           (mul g (Scalar.add a (Scalar.negate a)))
-          (add (mul g a) (mul g (Scalar.negate a)))) )
+          (add (mul g a) (mul g (Scalar.negate a)))))
 
   (** a g + b + g = (a + b) g*)
   let additive_associativity_with_scalar () =
