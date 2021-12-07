@@ -14,8 +14,37 @@
 # decide to use ADX or not. Useful if you build binaries for archs not
 # supporting ADX on a arch supporting ADX.
 cd libblst
+
+ARGS=
 if [ -n "${BLST_PORTABLE}" ]; then
-  ./build.sh -shared -Wno-missing-braces -D__BLST_PORTABLE__
+  ARGS="-shared -Wno-missing-braces -D__BLST_PORTABLE__"
 else
-  ./build.sh -shared -Wno-missing-braces
+  ARGS="-shared -Wno-missing-braces"
 fi
+
+case "$1" in
+	install)
+    case "$(uname -s)" in
+	CYGWIN*|MINGW32*|MSYS*)
+        cp "libblst.a" "../libblst.a"
+        cp "blst.dll" "../dllblst.dll"
+        ;;
+	Darwin)
+        cp "libblst.a" "../libblst.a"
+        cp "libblst.dylib" "../dllblst.so" # Because https://github.com/ocaml/dune/issues/4948 and https://github.com/ocaml/ocaml/pull/988#issuecomment-269288136
+	    ;;
+	*)
+        cp "libblst.a" "../libblst.a"
+        cp "libblst.so" "../dllblst.so"
+    esac
+	;;
+    *)
+    case "$(uname -s)" in
+	CYGWIN*|MINGW32*|MSYS*)
+	    ./build.sh flavour=mingw64 CC=x86_64-w64-mingw32-gcc "-shared"
+            ;;
+	*)
+	    ./build.sh ${ARGS}
+    esac
+esac
+

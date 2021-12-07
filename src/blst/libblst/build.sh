@@ -70,8 +70,11 @@ if [ $shared ]; then
                 CFLAGS="${CFLAGS} -nostdlib -lgcc";;
         *)      sharedlib=libblst.so;;
     esac
-    echo "{ global: blst_*; BLS12_381_*; local: *; };" |\
-    (set -x; ${CC} -shared -o $sharedlib libblst.a ${CFLAGS} \
-                   -Wl,-Bsymbolic,--require-defined=blst_keygen \
-                   -Wl,--version-script=/dev/fd/0)
+    echo "{ global: blst_*; BLS12_381_*; local: *; };" 
+    LINKER_FLAGS="-shared -o $sharedlib libblst.a ${CFLAGS} -Wl,-Bsymbolic,--require-defined=blst_keygen"
+    case $flavour in
+        mingw*) true;;
+	*) LINKKER_FLAGS="$LINKER_FLAGS -Wl,--version-script=/dev/fd/0" 
+    esac
+    (set -x; ${CC} ${LINKER_FLAGS})
 fi

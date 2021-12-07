@@ -31,8 +31,8 @@
 #define Blst_fr_val(v) ((blst_fr *)Data_custom_val(v))
 
 static int blst_fr_compare(value s, value t) {
-  u_int64_t s_uint64[4];
-  u_int64_t t_uint64[4];
+  uint64_t s_uint64[4];
+  uint64_t t_uint64[4];
   blst_scalar *buffer = (blst_scalar *)(calloc(1, sizeof(blst_scalar)));
 
   blst_fr *s_c = Blst_fr_val(s);

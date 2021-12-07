@@ -16,6 +16,8 @@
 (data_only_dirs libblst)
 
 (rule
+ (enabled_if
+  (= %{ocaml-config:system} linux))
  (deps
   (source_tree libblst)
   build_blst.sh)
@@ -23,14 +25,34 @@
  (action
   (no-infer
    (progn
-    (run ./build_blst.sh)
-    (run cp libblst/libblst.a libblst.a)
-    (with-accepted-exit-codes
-     (or 0 1)
-     (run cp libblst/libblst.so dllblst.so))
-    (with-accepted-exit-codes
-     (or 0 1)
-     (run cp libblst/libblst.dylib dllblst.so))))))
+    (run sh ./build_blst.sh)
+     (run sh ./build_blst.sh install)))))
+
+(rule
+ (enabled_if
+  (= %{ocaml-config:system} macosx))
+ (deps
+  (source_tree libblst)
+  build_blst.sh)
+ (targets libblst.a dllblst.so)
+ (action
+  (no-infer
+   (progn
+    (run sh ./build_blst.sh)
+     (run sh ./build_blst.sh install)))))
+
+(rule
+ (enabled_if
+  (= %{ocaml-config:system} mingw64))
+ (deps
+  (source_tree libblst)
+  build_blst.sh)
+ (targets libblst.a dllblst.dll)
+ (action
+  (no-infer
+   (progn
+    (run sh ./build_blst.sh)
+     (run sh ./build_blst.sh install)))))
 
 (library
  (public_name bls12-381-unix)
