@@ -1,0 +1,12 @@
+{
+  "source": "./bls12-381-unix.opam",
+  "override": {
+    "resolutions": {
+      "@opam/bls12-381": "./bls12-381.opam"
+    },
+    "buildEnv": {
+      "HOME": "#{$cur__target_dir}",
+      "PATH": "$PATH:/opt/homebrew/bin"
+    }
+  }
+}
