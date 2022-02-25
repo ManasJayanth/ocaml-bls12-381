@@ -5,7 +5,7 @@
 
 (copy_files primitives/fft/{fft.c,fft.h,caml_fft_stubs.c})
 
-(copy_files bindings/blst_bindings_stubs.c)
+(copy_files bindings/{blst_bindings_stubs.c,blst_bindings_stubs.js,bls-runtime-helpers.js})
 
 (copy_files bindings/blst_fr_misc.h)
 
@@ -54,6 +54,19 @@
     (run sh ./build_blst.sh)
      (run sh ./build_blst.sh install)))))
 
+(rule
+ (deps
+  (source_tree libblst)
+  needed-wasm-names
+  (glob_files *.h))
+ (targets blst.wasm blst.js)
+ (action
+  (run emcc -Os -o blst.js -I libblst/src/ libblst/src/server.c
+       %{dep:bindings/blst_wrapper.c} -DENABLE_EMSCRIPTEN_STUBS -DENABLE_MODULE_RECOVERY -s
+    ALLOW_MEMORY_GROWTH=1 -s WASM=1 -s MALLOC=emmalloc -s EXPORT_ES6=0 -s
+    FILESYSTEM=0 -s MODULARIZE=1 -s EXPORT_NAME='_BLS12381' -s
+    EXPORTED_FUNCTIONS=@needed-wasm-names --no-entry)))
+
 (library
  (public_name bls12-381-unix)
  (name bls12_381_unix)
@@ -85,6 +98,6 @@
     caml_fft_stubs)))
 
 (install
- (files libblst/bindings/blst.h libblst/bindings/blst_aux.h blst_fr_misc.h)
+ (files blst.wasm blst_bindings_stubs.js bls-runtime-helpers.js libblst/bindings/blst.h libblst/bindings/blst_aux.h blst_fr_misc.h)
  (section lib)
  (package bls12-381-unix))
