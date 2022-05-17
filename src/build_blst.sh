@@ -14,13 +14,26 @@
 # decide to use ADX or not. Useful if you build binaries for archs not
 # supporting ADX on a arch supporting ADX.
 cd libblst
-if [ $(uname --machine) = "s390x" ]; then
+
+build_for_unix() {
+  if [ $(uname --machine) = "s390x" ]; then
+      echo "()" > ../c_flags_blst.sexp
+      ./build.sh -shared -Wno-missing-braces -D__BLST_NO_ASM__
+  elif [ -n "${BLST_PORTABLE}" ]; then
+      echo "(-D__BLST_PORTABLE__)" > ../c_flags_blst.sexp
+      ./build.sh -shared -Wno-missing-braces -D__BLST_PORTABLE__
+  else
+      echo "()" > ../c_flags_blst.sexp
+      ./build.sh -shared -Wno-missing-braces
+  fi
+}
+
+case "$(uname -s)" in
+CYGWIN*|MINGW32*|MSYS*)
     echo "()" > ../c_flags_blst.sexp
-    ./build.sh -shared -Wno-missing-braces -D__BLST_NO_ASM__
-elif [ -n "${BLST_PORTABLE}" ]; then
-    echo "(-D__BLST_PORTABLE__)" > ../c_flags_blst.sexp
-    ./build.sh -shared -Wno-missing-braces -D__BLST_PORTABLE__
-else
-    echo "()" > ../c_flags_blst.sexp
-    ./build.sh -shared -Wno-missing-braces
-fi
+    ./build.sh flavour=mingw64 CC=x86_64-w64-mingw32-gcc "-shared"
+        ;;
+*)
+    build_for_unix
+esac
+
