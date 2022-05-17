@@ -1,0 +1,27 @@
+name: Build
+
+on: [push]
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+    steps:
+      - uses: actions/setup-node@v2
+        with:
+          node-version: 12
+      - uses: actions/checkout@v2.3.2
+      - name: Install esy
+        run: npm install -g esy
+
+      - name: Remove NPM package.json
+        run: rm package.json
+        shell: bash
+
+      - name: Install
+        run: esy install
+
+      - name: Build project
+        run: esy build
