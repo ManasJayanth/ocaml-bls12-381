@@ -14,7 +14,7 @@ jobs:
           node-version: 12
       - uses: actions/checkout@v2.3.2
       - name: Install esy
-        run: npm install -g esy
+        run: npm install -g esy@beta
 
       - name: Remove NPM package.json
         run: rm package.json
